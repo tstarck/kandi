@@ -1,0 +1,67 @@
+\documentclass[finnish]{tktltiki2}
+
+% rubber: module pdftex
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsfonts,amsmath,amssymb,amsthm,booktabs,color,enumitem,graphicx}
+\usepackage[pdftex,hidelinks]{hyperref}
+
+\makeatletter
+\AtBeginDocument{\hypersetup{pdftitle = {\@title}, pdfauthor = {\@author}}}
+\makeatother
+
+\usepackage[fixlanguage]{babelbib}
+\selectbiblanguage{finnish}
+
+\usepackage[nottoc]{tocbibind}
+\settocbibname{Lähteet}
+
+% --- Theorem environment definitions ---
+
+\newtheorem{lau}{Lause}
+\newtheorem{lem}[lau]{Lemma}
+\newtheorem{kor}[lau]{Korollaari}
+
+\theoremstyle{definition}
+\newtheorem{maar}[lau]{Määritelmä}
+\newtheorem{ong}{Ongelma}
+\newtheorem{alg}[lau]{Algoritmi}
+\newtheorem{esim}[lau]{Esimerkki}
+
+\theoremstyle{remark}
+\newtheorem*{huom}{Huomautus}
+
+\title{Esimerkkiotsikko}
+\author{Tuomas Starck}
+\date{\today}
+\level{Tiivistelmä}
+\abstract{Tiivistelmä.}
+
+\keywords{haskell, type system, type class}
+
+\classification{D.3.3}
+
+\begin{document}
+
+\frontmatter
+
+\maketitle
+\makeabstract
+
+\tableofcontents
+
+\mainmatter
+
+\section{Esimerkkiluku}
+
+% Insert science here
+
+Esimerkkilause ja lähdeviite~\cite{esimerkki}.
+
+\bibliographystyle{babalpha}
+\bibliography{lahteet}
+
+\end{document}

@@ -19,28 +19,13 @@
 \usepackage[nottoc]{tocbibind}
 \settocbibname{Lähteet}
 
-% --- Theorem environment definitions ---
-
-\newtheorem{lau}{Lause}
-\newtheorem{lem}[lau]{Lemma}
-\newtheorem{kor}[lau]{Korollaari}
-
-\theoremstyle{definition}
-\newtheorem{maar}[lau]{Määritelmä}
-\newtheorem{ong}{Ongelma}
-\newtheorem{alg}[lau]{Algoritmi}
-\newtheorem{esim}[lau]{Esimerkki}
-
-\theoremstyle{remark}
-\newtheorem*{huom}{Huomautus}
-
-\title{Esimerkkiotsikko}
+\title{Haskellin tyyppiluokat}
 \author{Tuomas Starck}
 \date{\today}
 \level{Tiivistelmä}
 \abstract{Tiivistelmä.}
 
-\keywords{haskell, type system, type class}
+\keywords{haskell, tyyppiluokka, tyyppijärjestelmä}
 
 \classification{D.3.3}
 
@@ -55,13 +40,31 @@
 
 \mainmatter
 
-\section{Esimerkkiluku}
+Artikkelissa \emph{Type Classes in Haskell}~\cite{Hall:1996:TCH:227699.227700} Cordelia V. Hall ym. määrittelee sääntöjoukon, jonka avulla operaatioiden ylikuormitus voidaan ratkaista johdonmukaisesti. Kyseistä sääntöjoukkoa kutsutaan Haskellissa tyyppiluokiksi (engl. type classes).
 
-% Insert science here
+% 1 Introduction
+Haskell-komitean tarkoituksena oli suunnitella laiska funktionaalinen kieli käyttäen olemassaolevia ja perusteellisesti ymmärrettyjä menetelmiä, mutta paljastui, ettei ollut olemassa standardia tapaa toteuttaa ylikuormitettujen operaatioiden käyttöä. [kuten esimerkiksi yhtäsuuruuden vertausta tai artimeettisiä operaatioita.] Ylikuormitus mahdollistaa sen, että esimerkiksi yhtäsuuruusoperaattoria (Haskellissa \texttt{(==)}) voi käyttää sekä erillaisten numeroiden yhtäsuuruuden vertaamiseen että merkkijonojen vastaavuuden vertaamiseen.
 
-Esimerkkilause ja lähdeviite~\cite{esimerkki}.
+Aiemmat kielet kuten Miranda tai Standard ML ovat käyttäneet eri menetelmiä ylikuormituksen ratkaisemiseksi paitsi keskenään niin myös kielen sisällä. Esimerkiksi Miranda käyttää eri ratkaisuja yhtäsuuruuden vertaamiseen, aritmeettisiin operaatioihin ja merkkijonojen muuntamiseen.
 
-\bibliographystyle{babalpha}
+Haskell-komitea päätti ottaa käyttöön uudenlaisen tekniikan, jossa klassista tyyppijärjestelmää laajennetaan tyyppiluokilla. Tällöin on mahdollista toteuttaa ylikuormitus kaikissa tilanteissa yhdenmukaisella tavalla. Tyyppiluokat mahdollistavat nimensä mukaisesti tyyppimuuttujien luokittelun sen perusteella, mitä ylikuormitettuja operaatioita kyseinen tyyppi tukee. Esimerkiksi Haskellissa kokonaisluku- ja merkkijonotyypit (\texttt{Int} ja \texttt{String} vastaavasti) kuuluvat luokkaan \texttt{Eq}, joka takaa, että molemmille tyypeille on määritelty yhtäsuuruusvertaus (\texttt{(==)}).
+
+% The type system of Haskell is certainly its most innovative feature and has pro-
+% voked much discussion.
+
+% 1.1 Contributions of this article
+% Jotain jotain neljä asiaa. (1) Haskellin tyyppiluokkien määritelmä ja ohjeet niiden implementointiin. (2) Jotain sääntöjä, mutta mitä? (3) Staattinen analyysi ja monimutkaisuuden hallinta. (4) Oman selän taputtelua.
+
+% 1.2 Outstanding issues
+% Vain kolme kohtaa tässä. (1) Ei polymorfisia metodeja? (2) Monomorfisuuden rajoitusta ei pureta. (3) Oletustyyppeihin ei oteta kantaa.
+
+% 2. Type classes
+
+% 2.1 Classes and instances
+% 2.2 Superclasses
+% 2.3 Translation
+
+\bibliographystyle{babalpha-lf}
 \bibliography{lahteet}
 
 \end{document}

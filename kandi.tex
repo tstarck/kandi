@@ -22,12 +22,12 @@
 \title{Haskellin tyyppiluokat}
 \author{Tuomas Starck}
 \date{\today}
-\level{Tiivistelmä}
-\abstract{Tiivistelmä.}
+\level{Referaatti}
+\abstract{Referaatti.}
 
-\keywords{haskell, tyyppiluokka, tyyppijärjestelmä}
+\keywords{haskell}
 
-\classification{D.3.3}
+% \classification{}
 
 \begin{document}
 
@@ -40,29 +40,49 @@
 
 \mainmatter
 
-Artikkelissa \emph{Type Classes in Haskell}~\cite{Hall:1996:TCH:227699.227700} Cordelia V. Hall ym. määrittelee sääntöjoukon, jonka avulla operaatioiden ylikuormitus voidaan ratkaista johdonmukaisesti. Kyseistä sääntöjoukkoa kutsutaan Haskellissa tyyppiluokiksi (engl. type classes).
+% lazy evaluation  -- laiska suoritus
+% eager evaluation --
+% non-strict       -- ei ehdoton?
+% evaluation       -- evaluointi
+% call-by-ref/value/name/need
+% semantics        -- merkitysoppia
+% reduction        -- sieventäminen
+% -- alityypitys
+% graph reduction  -- verkonkudonta!
+
+Artikkelissa \emph{A History of Haskell: Being Lazy with Clas}~\cite{Hudak:2007:HHL:1238844.1238856} Paul Hudak ym. kertoo Haskellin synnystä, historiasta, toimintaperiaatteista, työkaluista, sovelluksista ja vaikutuksesta. Ennen Haskellia oli olemassa lukuisia funktionaalisia ohjelmointikieliä, mutta vaihtoehtojen ylitarjonta hidasti funktionaalisen ohjelmoinnin omaksumista ja edistystä. Tilanteesta huolestuneet kokoontuivat vuonna 1987 Functional Programming and Computer Architecture -konferenssin yhteydessä pidettyyn tapaamiseen, jossa päätettiin suunnitella ja kehittää uusi yhteinen kieli. Kielen kehittäjät perustivat komitean, jonka eräs ensimmäisistä saavutuksista oli nimetä uusi kieli Haskelliksi.
+
+% 3.0 Goals, principles, and processes
+% Haskell is functional maybe?
+% Funktionaalisuudella on pitkät perinteet: John McCarthy  50-luvun loppu  Lisp
+
+% 3.1 Haskell is lazy
+
+Haskell-komitean jäsenten merkittävin yhteinen tavoite oli tehdä Haskellista laiska. Laiskuudella tarkoitetaan sitä, että ohjelmaa suoritettaessa funktion argumentit evaluoidaan vasta siinä vaiheessa, kun niitä tarvitaan. Laiskuudesta oli noin vuosikymmenen verran kokemusta Haskellin synnyn aikaan, joten se ei ollut uusi keksintö. Yleisesti ottaen Haskell-komitean pyrkimys oli käyttää olemassaolevia ja hyvin tunnettuja tekniikoita suunnittelutyönsä pohjana.
+
+Laiskuus ei ole täysin ongelmaton valinta. Laiskan suorituksen on pidettävä kirjaa siitä, mikä on evaluoimatta, ja se kasvattaa yleiskustannuksia. Kirjanpidosta seuraava hidastus on kuitenkin vakioinen ja verrattain pieni. Suurempi ongelma on se, että laiskan suorituksen tilavaativuutta on vaikea arvioida ja tilavaativuus voi helposti kasvaa ylilineaarisesti. Haskelliin on siksi lisätty funktio \texttt{seq}, jolla voi pakottaa lauseen evaluaation eli poistaa laiskuuden sellaisesta kohdasta ohjelmaa, jossa se on haitaksi.
+
+% 3.2 Haskell is pure
+
+Laiskuudesta seuraa se, että Haskell on myös puhdas.
+
+% 3.3 Haskell has type classes
+% 3.4 Haskell has no formal semantics
+% 3.5 Haskell is a committee language
+% 3.6 Haskell is a big language
+% 3.7 Haskell and Haskell 98
+% 3.8 Haskell and Miranda
+
+% %% %% %% %% %% %% %% %% %% %% %% %
+
+% Artikkelissa \emph{Type Classes in Haskell}~\cite{Hall:1996:TCH:227699.227700} Cordelia V. Hall ym. määrittelee sääntöjoukon, jonka avulla operaatioiden ylikuormitus voidaan ratkaista johdonmukaisesti. Kyseistä sääntöjoukkoa kutsutaan Haskellissa tyyppiluokiksi (engl. type classes).
 
 % 1 Introduction
-Haskell-komitean tarkoituksena oli suunnitella laiska funktionaalinen kieli käyttäen olemassaolevia ja perusteellisesti ymmärrettyjä menetelmiä, mutta paljastui, ettei ollut olemassa standardia tapaa toteuttaa ylikuormitettujen operaatioiden käyttöä. [kuten esimerkiksi yhtäsuuruuden vertausta tai artimeettisiä operaatioita.] Ylikuormitus mahdollistaa sen, että esimerkiksi yhtäsuuruusoperaattoria (Haskellissa \texttt{(==)}) voi käyttää sekä erillaisten numeroiden yhtäsuuruuden vertaamiseen että merkkijonojen vastaavuuden vertaamiseen.
+% Haskell-komitean tarkoituksena oli suunnitella laiska funktionaalinen kieli käyttäen olemassaolevia ja perusteellisesti ymmärrettyjä menetelmiä, mutta paljastui, ettei ollut olemassa standardia tapaa toteuttaa ylikuormitettujen operaatioiden käyttöä. [kuten esimerkiksi yhtäsuuruuden vertausta tai artimeettisiä operaatioita.] Ylikuormitus mahdollistaa sen, että esimerkiksi yhtäsuuruusoperaattoria (Haskellissa \texttt{(==)}) voi käyttää sekä erillaisten numeroiden yhtäsuuruuden vertaamiseen että merkkijonojen vastaavuuden vertaamiseen.
 
-Aiemmat kielet kuten Miranda tai Standard ML ovat käyttäneet eri menetelmiä ylikuormituksen ratkaisemiseksi paitsi keskenään niin myös kielen sisällä. Esimerkiksi Miranda käyttää eri ratkaisuja yhtäsuuruuden vertaamiseen, aritmeettisiin operaatioihin ja merkkijonojen muuntamiseen.
+% Aiemmat kielet kuten Miranda tai Standard ML ovat käyttäneet eri menetelmiä ylikuormituksen ratkaisemiseksi paitsi keskenään niin myös kielen sisällä. Esimerkiksi Miranda käyttää eri ratkaisuja yhtäsuuruuden vertaamiseen, aritmeettisiin operaatioihin ja merkkijonojen muuntamiseen.
 
-Haskell-komitea päätti ottaa käyttöön uudenlaisen tekniikan, jossa klassista tyyppijärjestelmää laajennetaan tyyppiluokilla. Tällöin on mahdollista toteuttaa ylikuormitus kaikissa tilanteissa yhdenmukaisella tavalla. Tyyppiluokat mahdollistavat nimensä mukaisesti tyyppimuuttujien luokittelun sen perusteella, mitä ylikuormitettuja operaatioita kyseinen tyyppi tukee. Esimerkiksi Haskellissa kokonaisluku- ja merkkijonotyypit (\texttt{Int} ja \texttt{String} vastaavasti) kuuluvat luokkaan \texttt{Eq}, joka takaa, että molemmille tyypeille on määritelty yhtäsuuruusvertaus (\texttt{(==)}).
-
-% The type system of Haskell is certainly its most innovative feature and has pro-
-% voked much discussion.
-
-% 1.1 Contributions of this article
-% Jotain jotain neljä asiaa. (1) Haskellin tyyppiluokkien määritelmä ja ohjeet niiden implementointiin. (2) Jotain sääntöjä, mutta mitä? (3) Staattinen analyysi ja monimutkaisuuden hallinta. (4) Oman selän taputtelua.
-
-% 1.2 Outstanding issues
-% Vain kolme kohtaa tässä. (1) Ei polymorfisia metodeja? (2) Monomorfisuuden rajoitusta ei pureta. (3) Oletustyyppeihin ei oteta kantaa.
-
-% 2. Type classes
-
-% 2.1 Classes and instances
-% 2.2 Superclasses
-% 2.3 Translation
+% Haskell-komitea päätti ottaa käyttöön uudenlaisen tekniikan, jossa klassista tyyppijärjestelmää laajennetaan tyyppiluokilla. Tällöin on mahdollista toteuttaa ylikuormitus kaikissa tilanteissa yhdenmukaisella tavalla. Tyyppiluokat mahdollistavat nimensä mukaisesti tyyppimuuttujien luokittelun sen perusteella, mitä ylikuormitettuja operaatioita kyseinen tyyppi tukee. Esimerkiksi Haskellissa kokonaisluku- ja merkkijonotyypit (\texttt{Int} ja \texttt{String} vastaavasti) kuuluvat luokkaan \texttt{Eq}, joka takaa, että molemmille tyypeille on määritelty yhtäsuuruusvertaus (\texttt{(==)}).
 
 \bibliographystyle{babalpha-lf}
 \bibliography{lahteet}

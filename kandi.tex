@@ -40,17 +40,21 @@
 
 \mainmatter
 
-% lazy evaluation  -- laiska suoritus
-% eager evaluation --
-% non-strict       -- ei ehdoton?
-% evaluation       -- evaluointi
+% http://www.eudict.com/?lang=engfin
 % call-by-ref/value/name/need
-% semantics        -- merkitysoppia
+% lazy             -- laiska
+% eager            -- ahne
+% strict           -- tiukka, vaativa, ehdoton
+% non-strict       -- löyhä
+% evaluation       -- evaluointi, laskeminen, laskenta
+% semantic         -- merkitysopillinen, semanttinen
 % reduction        -- sieventäminen
-% -- alityypitys
 % graph reduction  -- verkonkudonta!
+% pure             -- puhdas
+% I/O              -- siirräntä
+% monad            -- monadi
 
-Artikkelissa \emph{A History of Haskell: Being Lazy with Clas}~\cite{Hudak:2007:HHL:1238844.1238856} Paul Hudak ym. kertoo Haskellin synnystä, historiasta, toimintaperiaatteista, työkaluista, sovelluksista ja vaikutuksesta. Ennen Haskellia oli olemassa lukuisia funktionaalisia ohjelmointikieliä, mutta vaihtoehtojen ylitarjonta hidasti funktionaalisen ohjelmoinnin omaksumista ja edistystä. Tilanteesta huolestuneet kokoontuivat vuonna 1987 Functional Programming and Computer Architecture -konferenssin yhteydessä pidettyyn tapaamiseen, jossa päätettiin suunnitella ja kehittää uusi yhteinen kieli. Kielen kehittäjät perustivat komitean, jonka eräs ensimmäisistä saavutuksista oli nimetä uusi kieli Haskelliksi.
+Artikkelissa \emph{A History of Haskell: Being Lazy with Class}~\cite{Hudak:2007:HHL:1238844.1238856} Paul Hudak ym. kertoo Haskellin synnystä, historiasta, toimintaperiaatteista, työkaluista, sovelluksista ja vaikutuksesta. Ennen Haskellia oli olemassa lukuisia funktionaalisia ohjelmointikieliä, mutta vaihtoehtojen ylitarjonta hidasti funktionaalisen ohjelmoinnin omaksumista ja edistystä. Tilanteesta huolestuneet kokoontuivat vuonna 1987 Functional Programming and Computer Architecture -konferenssin yhteydessä pidettyyn tapaamiseen, jossa päätettiin suunnitella ja kehittää uusi yhteinen kieli. Kielen kehittäjät perustivat komitean, jonka eräs ensimmäisistä saavutuksista oli nimetä uusi kieli Haskelliksi.
 
 % 3.0 Goals, principles, and processes
 % Haskell is functional maybe?
@@ -60,13 +64,24 @@ Artikkelissa \emph{A History of Haskell: Being Lazy with Clas}~\cite{Hudak:2007:
 
 Haskell-komitean jäsenten merkittävin yhteinen tavoite oli tehdä Haskellista laiska. Laiskuudella tarkoitetaan sitä, että ohjelmaa suoritettaessa funktion argumentit evaluoidaan vasta siinä vaiheessa, kun niitä tarvitaan. Laiskuudesta oli noin vuosikymmenen verran kokemusta Haskellin synnyn aikaan, joten se ei ollut uusi keksintö. Yleisesti ottaen Haskell-komitean pyrkimys oli käyttää olemassaolevia ja hyvin tunnettuja tekniikoita suunnittelutyönsä pohjana.
 
-Laiskuus ei ole täysin ongelmaton valinta. Laiskan suorituksen on pidettävä kirjaa siitä, mikä on evaluoimatta, ja se kasvattaa yleiskustannuksia. Kirjanpidosta seuraava hidastus on kuitenkin vakioinen ja verrattain pieni. Suurempi ongelma on se, että laiskan suorituksen tilavaativuutta on vaikea arvioida ja tilavaativuus voi helposti kasvaa ylilineaarisesti. Haskelliin on siksi lisätty funktio \texttt{seq}, jolla voi pakottaa lauseen evaluaation eli poistaa laiskuuden sellaisesta kohdasta ohjelmaa, jossa se on haitaksi.
+Laiskuus ei ole täysin ongelmaton valinta. Laiskan suorituksen on pidettävä kirjaa siitä, mikä on evaluoimatta, ja se kasvattaa yleiskustannuksia. Kirjanpidosta seuraava hidastus on kuitenkin vakioinen ja verrattain pieni. Suurempi ongelma on se, että laiskan suorituksen tilavaativuutta on vaikea arvioida ja tilavaativuus voi helposti kasvaa ylilineaarisesti. Haskelliin on siksi lisätty sekä tietorakenteita, jotka eivät ole laiskoja, että keino pakottaa lausekkeen evaluaatio, jolloin laiskuuden voi poistaa sellaisesta kohdasta ohjelmaa, jossa se on haitaksi.
 
 % 3.2 Haskell is pure
 
-Laiskuudesta seuraa se, että Haskell on myös puhdas.
+Laiskuuden välitön seuraus on se, että evaluointijärjestys määräytyy tarpeen mukaan, jolloin vastaavasti sivuvaikutusten käsittely on vaikea tai mahdoton toteuttaa mielekkäästi. Sivuvaikutuksilla tarkoitetaan esimerkiksi siirrännän käsittelyä, muuttujan arvon manipulointia tai yleisesti ottaen mitä tahansa ulkoista tilanmuutosta. Haskell-komitean ratkaisu oli tehdä Haskellista puhdas kieli eli funktioilla ei ole lainkaan sivuvaikutuksia. Tässä mielessä Haskellin funktiot ovat merkitykseltään vastaavanlaisia matemaattisten funktioiden kanssa -- molemmat palauttavat samalla syötteellä aina saman arvon.
+
+Puhtauden vaikutukset ovat kaikenkattavat. Koska sivuvaikutuksia ei sallittu, oli Haskellin alkuaikoina siirräntä tuskallisen hankalaa. Pakon edessä kehitettiin monadinen siirräntä, jota voidaan pitää yhtenä Haskellin merkittävimmistä panostuksista ohjelmointikielten kehitykselle.
+
+Keskustelu siitä onko puhtaan kielen ja monadisten sivuvaikutusten yhdistelmä paras lähestymistapa ohjelmistojen kehitykselle on yhä kesken, mutta Haskellin tarjoama ehdotus on ainakin mullistava ja elegantti. Lisäksi sen on synnyttänyt paljon tutkimusta monadeista ja tilan kapseloinnista.
 
 % 3.3 Haskell has type classes
+
+Tyyppiluokkia pidetään nykyisin yhtenä Haskellin tunnusmerkillisimmistä ominaisuuksista. Alunperin tyyppiluokat tuotiin osaksi kieltä, koska oli tarve ratkaista yhtäsuuruuden vertaamisen ja numeeristen operaatioiden ylikuormitus. Haskell-komitean tavoite oli suunnitella kieli käyttäen olemassaolevia ja perusteellisesti tunnettuja menetelmiä, mutta Haskellia edeltäneissä funktionaalisissa kielissä, kuten Mirandassa ja Standard ML:ssä, ei ylikuormitusta oltu ratkaistu yhtenäisellä tavalla. Lisäksi aiemmin käytetyissä menetelmissä oli heikkouksia, kuten esimerkiksi Mirandan polymorfinen yhtäsuuruusvertailu, joka saattoi johtaa ajonaikaisiin virhetilanteisiin.
+
+Tyyppiluokat mahdollistavat nimensä mukaisesti tyyppien luokittelun sen perusteella, mitä ylikuormitettuja operaatioita kyseinen tyyppi tukee. Esimerkiksi Haskellissa luokkaan \texttt{Eq} kuuluvalle tyypille on toteutettu yhtäsuuruusvertailu. Tällöin käännösvaiheessa on mahdollista tarkistaa, että \texttt{==}-operaattoria käytetään vain niiden tyyppien kesken, jotka kuuluvat asiaankuuluvaan luokkaan. Vaikka tyyppiluokkien toimivuutta ei oltu todistettu, Haskell-komitea päätyi niiden käyttöön, sillä niiden avulla kaikkien tyyppien ylikuormitus oli ratkaistavissa yhtenäisellä, järjestelmällisellä ja modulaarisella tavalla.
+
+% Ks. section 6 ja lisätietoja
+
 % 3.4 Haskell has no formal semantics
 % 3.5 Haskell is a committee language
 % 3.6 Haskell is a big language

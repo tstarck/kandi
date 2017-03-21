@@ -1,7 +1,3 @@
-/kandi.aux
-/kandi.bbl
-/kandi.blg
-/kandi.dvi
-/kandi.log
-/kandi.out
-/kandi.toc
+*.pdf
+/kandi.*
+!/kandi.tex

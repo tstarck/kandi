@@ -19,7 +19,7 @@
 \usepackage[nottoc]{tocbibind}
 \settocbibname{Lähteet}
 
-\title{Haskellin tyyppiluokat}
+\title{Haskell}
 \author{Tuomas Starck}
 \date{\today}
 \level{Referaatti}
@@ -40,25 +40,10 @@
 
 \mainmatter
 
-% http://www.eudict.com/?lang=engfin
-% call-by-ref/value/name/need
-% lazy             -- laiska
-% eager            -- ahne
-% strict           -- tiukka, vaativa, ehdoton
-% non-strict       -- löyhä
-% evaluation       -- evaluointi, laskeminen, laskenta
-% semantic         -- merkitysopillinen, semanttinen
-% reduction        -- sieventäminen
-% graph reduction  -- verkonkudonta!
-% pure             -- puhdas
-% I/O              -- siirräntä
-% monad            -- monadi
-
-Artikkelissa \emph{A History of Haskell: Being Lazy with Class}~\cite{Hudak:2007:HHL:1238844.1238856} Paul Hudak ym. kertoo Haskellin synnystä, historiasta, toimintaperiaatteista, työkaluista, sovelluksista ja vaikutuksesta. Ennen Haskellia oli olemassa lukuisia funktionaalisia ohjelmointikieliä, mutta vaihtoehtojen ylitarjonta hidasti funktionaalisen ohjelmoinnin omaksumista ja edistystä. Tilanteesta huolestuneet kokoontuivat vuonna 1987 Functional Programming and Computer Architecture -konferenssin yhteydessä pidettyyn tapaamiseen, jossa päätettiin suunnitella ja kehittää uusi yhteinen kieli. Kielen kehittäjät perustivat komitean, jonka eräs ensimmäisistä saavutuksista oli nimetä uusi kieli Haskelliksi.
+Artikkelissa \emph{A History of Haskell: Being Lazy with Class}~\cite{hoh07} Paul Hudak ym. kertoo Haskellin synnystä, historiasta, toimintaperiaatteista, työkaluista, sovelluksista ja vaikutuksesta. Ennen Haskellia oli olemassa lukuisia funktionaalisia ohjelmointikieliä, mutta vaihtoehtojen ylitarjonta hidasti funktionaalisen ohjelmoinnin omaksumista ja edistystä. Tilanteesta huolestuneet kokoontuivat vuonna 1987 Functional Programming and Computer Architecture -konferenssin yhteydessä pidettyyn tapaamiseen, jossa päätettiin suunnitella ja kehittää uusi yhteinen kieli. Kielen kehittäjät perustivat komitean, jonka yksi ensimmäisistä saavutuksista oli nimetä uusi kieli Haskelliksi.
 
 % 3.0 Goals, principles, and processes
-% Haskell is functional maybe?
-% Funktionaalisuudella on pitkät perinteet: John McCarthy  50-luvun loppu  Lisp
+% Funktionaalisuuden historia: John McCarthy, 50-luvun loppu, Lisp
 
 % 3.1 Haskell is lazy
 
@@ -68,11 +53,11 @@ Laiskuus ei ole täysin ongelmaton valinta. Laiskan suorituksen on pidettävä k
 
 % 3.2 Haskell is pure
 
-Laiskuuden välitön seuraus on se, että evaluointijärjestys määräytyy tarpeen mukaan, jolloin vastaavasti sivuvaikutusten käsittely on vaikea tai mahdoton toteuttaa mielekkäästi. Sivuvaikutuksilla tarkoitetaan esimerkiksi siirrännän käsittelyä, muuttujan arvon manipulointia tai yleisesti ottaen mitä tahansa ulkoista tilanmuutosta. Haskell-komitean ratkaisu oli tehdä Haskellista puhdas kieli eli funktioilla ei ole lainkaan sivuvaikutuksia. Tässä mielessä Haskellin funktiot ovat merkitykseltään vastaavanlaisia matemaattisten funktioiden kanssa -- molemmat palauttavat samalla syötteellä aina saman arvon.
+Laiskuuden välitön seuraus on se, että evaluointijärjestys määräytyy tarpeen mukaan, jolloin vastaavasti sivuvaikutusten käsittelyä on vaikeaa tai mahdotonta toteuttaa mielekkäästi. Sivuvaikutuksilla tarkoitetaan esimerkiksi siirrännän käsittelyä (engl. input/output), muuttujan arvon manipulointia tai yleisesti ottaen mitä tahansa ulkoista tilanmuutosta. Haskell-komitean ratkaisu oli tehdä Haskellista puhdas kieli, jolloin funktioilla ei ole lainkaan sivuvaikutuksia. Tässä mielessä Haskellin funktiot ovat merkitykseltään vastaavanlaisia matemaattisten funktioiden kanssa -- molemmat palauttavat samalla syötteellä aina saman arvon.
 
 Puhtauden vaikutukset ovat kaikenkattavat. Koska sivuvaikutuksia ei sallittu, oli Haskellin alkuaikoina siirräntä tuskallisen hankalaa. Pakon edessä kehitettiin monadinen siirräntä, jota voidaan pitää yhtenä Haskellin merkittävimmistä panostuksista ohjelmointikielten kehitykselle.
 
-Keskustelu siitä onko puhtaan kielen ja monadisten sivuvaikutusten yhdistelmä paras lähestymistapa ohjelmistojen kehitykselle on yhä kesken, mutta Haskellin tarjoama ehdotus on ainakin mullistava ja elegantti. Lisäksi sen on synnyttänyt paljon tutkimusta monadeista ja tilan kapseloinnista.
+Keskustelu siitä, onko puhtaan kielen ja monadisten sivuvaikutusten yhdistelmä paras lähestymistapa ohjelmistojen kehitykselle, on yhä kesken, mutta Haskellin tarjoama ehdotus on ainakin mullistava ja elegantti. Lisäksi sen on synnyttänyt paljon tutkimusta monadeista ja tilan kapseloinnista.
 
 % 3.3 Haskell has type classes
 
@@ -80,26 +65,29 @@ Tyyppiluokkia pidetään nykyisin yhtenä Haskellin tunnusmerkillisimmistä omin
 
 Tyyppiluokat mahdollistavat nimensä mukaisesti tyyppien luokittelun sen perusteella, mitä ylikuormitettuja operaatioita kyseinen tyyppi tukee. Esimerkiksi Haskellissa luokkaan \texttt{Eq} kuuluvalle tyypille on toteutettu yhtäsuuruusvertailu. Tällöin käännösvaiheessa on mahdollista tarkistaa, että \texttt{==}-operaattoria käytetään vain niiden tyyppien kesken, jotka kuuluvat asiaankuuluvaan luokkaan. Vaikka tyyppiluokkien toimivuutta ei oltu todistettu, Haskell-komitea päätyi niiden käyttöön, sillä niiden avulla kaikkien tyyppien ylikuormitus oli ratkaistavissa yhtenäisellä, järjestelmällisellä ja modulaarisella tavalla.
 
-% Ks. section 6 ja lisätietoja
-
 % 3.4 Haskell has no formal semantics
 % 3.5 Haskell is a committee language
 % 3.6 Haskell is a big language
 % 3.7 Haskell and Haskell 98
 % 3.8 Haskell and Miranda
 
+% 6 Haskell as a type-system laboratory
+
+% Monad
+% http://lambda-the-ultimate.org/node/3051
+% https://jeltsch.wordpress.com/2013/02/09/some-interesting-features-of-haskells-type-system
+% * kinds == types of types
+% * type classes: kind *
+% * constructor classes: kind * -> *
+% * multiparameter type classes: e.g. conversion val -> val'
+
+Jälkikäteen ajateltuna tyyppiluokkien ottaminen osaksi Haskellia oli onnekas valinta, jolla on ollut kauaskantoisia vaikutuksia, sillä tyyppiluokat ovat monikäyttöinen työkalu ja niiden avulla voi tehdä paljon muutakin kuin toteuttaa ylikuormituksen. Yksi merkittävä edistysaskel Haskellin ja tyyppiluokkien kehitykselle oli ehdotus tyyppimuodostajan parametroimisesta tyyppimuuttujan sijaan. Tämä mahdollisti korkeamman asteen polymorfismin (engl. higher-kinded polymorphism), jonka välitön sovellus oli monadien toteuttaminen.
+
 % %% %% %% %% %% %% %% %% %% %% %% %
-
-% Artikkelissa \emph{Type Classes in Haskell}~\cite{Hall:1996:TCH:227699.227700} Cordelia V. Hall ym. määrittelee sääntöjoukon, jonka avulla operaatioiden ylikuormitus voidaan ratkaista johdonmukaisesti. Kyseistä sääntöjoukkoa kutsutaan Haskellissa tyyppiluokiksi (engl. type classes).
-
-% 1 Introduction
-% Haskell-komitean tarkoituksena oli suunnitella laiska funktionaalinen kieli käyttäen olemassaolevia ja perusteellisesti ymmärrettyjä menetelmiä, mutta paljastui, ettei ollut olemassa standardia tapaa toteuttaa ylikuormitettujen operaatioiden käyttöä. [kuten esimerkiksi yhtäsuuruuden vertausta tai artimeettisiä operaatioita.] Ylikuormitus mahdollistaa sen, että esimerkiksi yhtäsuuruusoperaattoria (Haskellissa \texttt{(==)}) voi käyttää sekä erillaisten numeroiden yhtäsuuruuden vertaamiseen että merkkijonojen vastaavuuden vertaamiseen.
 
 % Aiemmat kielet kuten Miranda tai Standard ML ovat käyttäneet eri menetelmiä ylikuormituksen ratkaisemiseksi paitsi keskenään niin myös kielen sisällä. Esimerkiksi Miranda käyttää eri ratkaisuja yhtäsuuruuden vertaamiseen, aritmeettisiin operaatioihin ja merkkijonojen muuntamiseen.
 
-% Haskell-komitea päätti ottaa käyttöön uudenlaisen tekniikan, jossa klassista tyyppijärjestelmää laajennetaan tyyppiluokilla. Tällöin on mahdollista toteuttaa ylikuormitus kaikissa tilanteissa yhdenmukaisella tavalla. Tyyppiluokat mahdollistavat nimensä mukaisesti tyyppimuuttujien luokittelun sen perusteella, mitä ylikuormitettuja operaatioita kyseinen tyyppi tukee. Esimerkiksi Haskellissa kokonaisluku- ja merkkijonotyypit (\texttt{Int} ja \texttt{String} vastaavasti) kuuluvat luokkaan \texttt{Eq}, joka takaa, että molemmille tyypeille on määritelty yhtäsuuruusvertaus (\texttt{(==)}).
-
 \bibliographystyle{babalpha-lf}
-\bibliography{lahteet}
+\bibliography{viitteet}
 
 \end{document}

@@ -9,6 +9,10 @@
 \usepackage{amsfonts,amsmath,amssymb,amsthm,booktabs,color,enumitem,graphicx}
 \usepackage[pdftex,hidelinks]{hyperref}
 
+\usepackage{listings}
+\renewcommand{\lstlistingname}{Listaus}
+\lstset{captionpos=b,frame=single,language=Haskell}
+
 \makeatletter
 \AtBeginDocument{\hypersetup{pdftitle = {\@title}, pdfauthor = {\@author}}}
 \makeatother
@@ -19,7 +23,7 @@
 \usepackage[nottoc]{tocbibind}
 \settocbibname{Lähteet}
 
-\title{Haskell}
+\title{Haskell ja monadinen imperatiivisuus}
 \author{Tuomas Starck}
 \date{\today}
 \level{Referaatti}
@@ -40,6 +44,9 @@
 
 \mainmatter
 
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\fixme}[1]{\emph{#1}}
+
 
 \section{Johdanto}
 
@@ -49,25 +56,180 @@
 % 1.1 Peliteoria ja pelipuu
 % 1.2 Minimax ja heuristiikka
 
-Eli johdannossa selitetään Haskellin (suunnittelu)historiaa, paradigmaa ja kaikkea muuta, mistä on
-jo kirjoitettu. Sitten voi varmaan sivuta sitä ongelmaa, että miten saadaan IO, kun ollaan laiskoja
-ja puhtaita.
+% Eli johdannossa selitetään Haskellin (suunnittelu)historiaa, paradigmaa ja kaikkea muuta, mistä on
+% jo kirjoitettu. Sitten voi varmaan sivuta sitä ongelmaa, että miten saadaan IO, kun ollaan laiskoja
+% ja puhtaita.
 
+\subsection{Haskell}
 
-\section{Luku 2}
+Haskell sai alkunsa vuonna 1987 Functional Programming and Computer Architecture -konferenssin
+yhteydessä pidettyssä tapaamisessa, jossa päätettiin suunnitella ja kehittää uusi ohjelmointikieli.
+Ennen Haskellia oli olemassa lukuisia funktionaalisia ohjelmointikieliä, mutta vaihtoehtojen
+ylitarjonta sipraloi funktionaalisen ohjelmoinnin kentän ja hidasti sen edistystä. Kielen
+kehittämistä varten perustettiin komitea, jonka tavoitteena oli luoda yksi yhtenäinen
+funktionaalinen ohjelmointikieli. Komitean yksi ensimmäisistä saavutuksista oli nimetä uusi kieli
+Haskelliksi.~\cite{hoh07}
+
+\subsection{Laiskuus}
+
+Haskell-komitean merkittävin yhteinen tavoite oli tehdä Haskellista laiska. Laiskuudella
+tarkoitetaan sitä, että ohjelman lausekkeet evaluoidaan vasta silloin, kun niiden palauttama arvo on
+tarpeen. Laiska suoritus mahdollistaa muun muassa äärettömien tietorakenteiden määrittelyn ja
+käsittelyn, sillä Haskellin suoritusympäristö ei pyri evaluoimaan niitä loppuun saakka, joten
+ohjelma ei jää jumiin.
+
+Yleisesti ottaen Haskell-komitean pyrkimys oli käyttää olemassaolevia ja hyvin tunnettuja
+tekniikoita suunnittelutyönsä pohjana. Laiskuudesta oli noin vuosikymmenen verran kokemusta
+Haskellin synnyn aikaan, joten se ei ollut uusi keksintö.
+
+Laiskuus ei ole täysin ongelmaton valinta. Laiskan suorituksen on pidettävä kirjaa siitä, mitkä osat
+ohjelmaa ovat suorittamatta, ja se kasvattaa yleiskustannuksia. Kirjanpidosta seuraava hidastus on
+kuitenkin vakioinen ja verrattain pieni. Suurempi ongelma on se, että laiskan suorituksen
+tilavaativuutta on vaikea arvioida ja se saattaa kasvaa ylilineaarisesti. Haskelliin on siksi
+lisätty sekä tietorakenteita, jotka eivät ole laiskoja, että keino pakottaa lausekkeen evaluaatio,
+jolloin laiskuuden voi poistaa sellaisesta kohdasta ohjelmaa, jossa se on haitaksi.
+
+\subsection{Puhtaus}
+
+Laiskuuden välitön seuraus on se, että evaluointijärjestys määräytyy tarpeen mukaan, jolloin
+vastaavasti sivuvaikutusten käsittelyä on vaikeaa toteuttaa mielekkäästi. Sivuvaikutuksilla
+tarkoitetaan esimerkiksi siirrännän käsittelyä (engl. input/output) tai yleisesti ottaen mitä
+tahansa ulkoista tilanmuutosta \fixme{parempiselitys!}.
+
+Haskell-komitean ratkaisu oli tehdä Haskellista puhdas kieli, jolloin funktioilla ei ole lainkaan
+sivuvaikutuksia. Tässä mielessä Haskellin funktiot ovat paitsi nimeltään niin myös merkitykseltään
+vastaavanlaisia matemaattisten funktioiden kanssa -- molemmat palauttavat samalla syötteellä aina
+saman arvon.
+
+Puhtauden vaikutukset ovat kaikenkattavat. Koska sivuvaikutuksia ei sallittu, oli Haskellin
+alkuaikoina siirräntä tuskallisen hankalaa. Pakon edessä kehitettiin monadinen siirräntä, jota
+voidaan pitää yhtenä Haskellin merkittävimmistä panostuksista ohjelmointikielten kehitykselle.
+Keskustelu siitä, onko puhtaan kielen ja monadisten sivuvaikutusten yhdistelmä paras lähestymistapa
+ohjelmistojen kehitykselle, on yhä kesken, mutta Haskellin tarjoama ehdotus on ainakin mullistava ja
+elegantti. Lisäksi sen on synnyttänyt paljon tutkimusta monadeista ja tilan kapseloinnista.
+
+\subsection{Tyyppiluokat}
+
+Tyyppiluokkia pidetään nykyisin yhtenä Haskellin tunnusmerkillisimmistä ominaisuuksista. Alunperin
+tyyppiluokat tuotiin osaksi kieltä, koska oli tarve ratkaista yhtäsuuruuden vertaamisen ja
+numeeristen operaatioiden ylikuormitus. Haskell-komitean tavoite oli suunnitella kieli käyttäen
+olemassaolevia ja perusteellisesti tunnettuja menetelmiä, mutta Haskellia edeltäneissä
+funktionaalisissa kielissä, kuten Mirandassa tai Standard ML:ssä, ei ylikuormitusta oltu ratkaistu
+yhtenäisellä tavalla. Lisäksi aiemmin käytetyissä menetelmissä oli heikkouksia, kuten esimerkiksi
+Mirandan polymorfinen yhtäsuuruusvertailu \fixme{laajenna?}, joka saattoi johtaa ajonaikaisiin
+virhetilanteisiin.
+
+Tyyppiluokat mahdollistavat nimensä mukaisesti tyyppien luokittelun sen perusteella, mitä
+ylikuormitettuja operaatioita ne tukevat. Esimerkiksi Haskellissa luokkaan \code{Eq} kuuluvalle
+tyypille on toteutettu yhtäsuuruusvertailu. Tällöin käännösvaiheessa on mahdollista tarkistaa, että
+\code{==}-operaattoria käytetään vain sellaisten tyyppien kesken, jotka kuuluvat
+\code{Eq}-luokkaan. Vaikka tyyppiluokat olivat uusi keksintö eikä niiden toimivuutta oltu
+todistettu aiemmin, Haskell-komitea päätyi omaksumaan ne osaksi kieltä, sillä niiden avulla kaikkien
+tyyppien ylikuormitus oli ratkaistavissa yhtenäisellä, järjestelmällisellä ja modulaarisella
+tavalla.
+
+\fixme{FIXME} Jälkikäteen ajateltuna tyyppiluokkien ottaminen osaksi Haskellia oli onnekas valinta,
+jolla on ollut kauaskantoisia vaikutuksia, sillä tyyppiluokat ovat monikäyttöinen työkalu ja niiden
+avulla voi tehdä paljon muutakin kuin toteuttaa ylikuormituksen. Yksi merkittävä edistysaskel
+Haskellin ja tyyppiluokkien kehitykselle oli ehdotus tyyppimuodostajan parametroimisesta
+tyyppimuuttujan sijaan. Tämä mahdollisti korkeamman asteen polymorfismin (engl. higher-kinded
+polymorphism), jonka välitön sovellus oli monadien toteuttaminen.
+
+\subsection{Monadit / monadien historiaa / jotain}
+
+\fixme{FIXME}
+
+\section{Siirrännän vaikeus laiskassa ja puhtaassa kielessä}
 
 % Purkaa auki teknisemmälle yleisölle samalla käsitteitä määritellen tutkimuskysymyksen, ratkaisuille
 %  ympäristöstä esiintulevat vaatimukset ja keskeiset käsitteet näiden asioiden esittelemiseksi.
 % Antaa riittävästi termistöä ja kysymyksenasetteluja, jotta myöhempänä teksissä on mahdollisuus
 %  analyysiin ja evaluointiin.
-% Esim:
-% 2. Monte Carlo -puuhaku
 
-Nyt tunnetaan Haskellin pohjatiedot ja lähtökohta problematiikalle. Monadit, IO, tyyppiluokat ja
-mahdollisesti muuta terminologiaa pitäisi esitellä.
+\subsection{Laiskuus}
 
+Laiska suoritus sopii hyvin yhteen puhtaan funktionaalisen kielen kanssa, mutta tekee siirrännän
+käsittelyn vaikeaksi. Listauksessa~\ref{lst:esim1} on minimalistinen esimerkkiohjelma, jossa käytetään
+funktiota \code{putStrLn}, joka tulostaa argumenttinsa `Haskell' oletustulostusvirtaan. Funktio
+\code{main} on Haskell-ohjelman aloituspiste.
 
-\section{Luvut 3 jne}
+\begin{lstlisting}[label={lst:esim1},caption={Tulostava esimerkkiohjelma}]
+main = putStrLn 'Haskell'
+\end{lstlisting}
+
+Imperatiiviseen paradigmaan tottunut saattaisi olettaa, että ohjelma tulostaa `Haskell' ja lopettaa.
+Laiska suoritus kuitenkin johtaa siihen, ettei mitään tulostu. Funktiota \code{putStrLn} ei koskaan
+evaluoida, sillä se ei palauta mitään sellaista arvoa, joka on tarpeen ohjelman suorittamiseksi.
+Toisin sanoen esimerkkiohjelman tulostus optimoidaan pois.
+
+Imperatiivisessa ohjelmoinnissa suoritusjärjestys on tavanomaisesti ahne, jolloin ohjelman suoritus
+seuraa kirjoitetun koodin rakennetta, mutta sama sääntö ei päde laiskaan evaluointiin.
+Listauksen~\ref{lst:kaksi} pseudokoodiesimerkkissä on kaksi tulostavaa funktiota (\code{print}),
+mutta niiden keskinäisestä suoritusjärjestyksestä ei ole mitään takeita. Toisin sanoen siinäkin
+tapauksessa, että tulostukset suoritettaisiin, saattaa `maailma' tulostua ennen merkkijonoa `Hei'.
+
+\begin{lstlisting}[label={lst:kaksi},caption={Kahden tulostuksen pseudokoodi}]
+kaksiTulostusta = { print 'Hei'; print 'maailma' }
+\end{lstlisting}
+
+Tämä on luonnollisesti merkittävä ongelma siirrännän käsittelyssä. Tavanomainen ohjelman
+käyttötapaus on ottaa vastaan jokin syöte ja tuottaa vastaus sen perusteella, joten siirrännän tulee
+tapahtua määrätyssä järjestyksessä.
+
+\subsection{Puhtaus}
+
+Puhdas laskenta tarjoaa monia hyötyjä. Esimerkiksi rinnakkaista ohjelmointia pidetään perinteisesti
+vaikeana ja yksi merkittävä syy ohjelmointivirheille on se, että suorituksen eri haarat lukevat tai
+muuttavat jaettua tilaa virheellisesti. Puhdas rinnakkainen laskenta on sivuvaikutuksetonta, joten
+se on immuuni samoille ongelmille.
+
+% https://en.wikipedia.org/wiki/Dijkstra_Prize
+
+Sivuvaikutusten puute tarkoittaa myös sitä, että Haskell on viitteellisesti läpinäkyvä (engl.
+\emph{referentially transparent}). Toisin sanoen minkä tahansa Haskellin lausekkeen voi korvata
+kyseisen lausekkeen arvolla ilman, että ohjelman merkitys muuttuu. Käytännössä se mahdollistaa
+optimoinnin, jossa kääntäjä pelkistää kaikki toistuvat viitteet yhdeksi. Esimerkiksi
+listauksessa~\ref{lst:kuutio} \code{x}:n arvo pitää selvitää vain kerran, jonka jälkeen arvolla
+korvataan jokainen \code{x} ja kertolaskut voidaan laskea.
+
+\begin{lstlisting}[label={lst:kuutio},caption={Puhdas laskenta}]
+kuutio = x * x * x
+\end{lstlisting}
+
+Esimerkin yksinkertaisuus saattaa hämätä, joten on syytä muistaa, että \code{x} voi olla
+laskennallisesti mielivaltaisen haastava funktio, joten optimointi voi olla merkittävä. Lisäksi
+ilman puhtautta, saattaisi \code{x} arvo riippua esimerkiksi ulkoisesta syötteestä, jolloin sama
+optimointi ei olisi mahdollinen. Toisaalta aina kyseinen optimointi ei johda toivottuun
+lopputulokseen.
+
+\begin{lstlisting}[label={lst:samat},caption={Kaksi samaa funktiota}]
+main = { print 'Hei'; print 'Hei' }
+\end{lstlisting}
+
+\fixme{FIXME} Esimerkissä~\ref{lst:samat} on kaksi samaa funktiota, jotka lisäksi saavat saman arvon
+argumentikseen. Tässäkin tapauksessa kääntäjä luottaa puhtauteen ja optimoi identtiset funktiot
+yhdeksi evaluaatioksi. Toisin sanoen siinäkin tapauksessa, että tulostus suoritettaisiin aiemmin
+mainituista ongelmista huolimatta, vain yksi `Hei' tulostuisi, sillä molemmat \code{print}-funktiot
+korvattaisiin yhden suorituksen arvolla.
+
+\subsection{Jokin otsikko}
+
+\begin{lstlisting}[label={lst:ratkaisu},caption={Ratkaisu}]
+main p0 = ([f1, f2], p2) where
+  (f1, p1) = putStrLn p0 'Hei'
+  (f2, p2) = putStrLn p1 'maailma'
+\end{lstlisting}
+
+% Koska tarpeen mukaan määräytyvä suoritusjärjestys
+% Ja jokin ratkaisu puhtauteen
+
+% get2chars :: Int -> (String, Int)
+% get2chars i0 = ([a,b], i2)  where (a,i1) = getchar i0
+%                                   (b,i2) = getchar i1
+
+%% % % % % % % % % % % % %%
+
+\section{Monadinen siirräntä}
 
 % Keskimmäiset luvut keskittyvät kukin "opettamaan" lukijalle yhden osakysymyksen tai näkökulman
 % käsiteltävään asiaan. Lukujen työnjaon tulisi olla selkeä ja niillä tulee olla selkeä oma
@@ -78,15 +240,14 @@ mahdollisesti muuta terminologiaa pitäisi esitellä.
 % 5. MCTS ja go
 % 6. Rinnakkaistettu MCTS
 
-Tässä ja seuraavissa luvuissa mennään varsinaiseen aiheeseen, joita lienee monadit, IO:n toteutuksen
-vaarimukset, tilan toteutuksen vaatimukset ja vielä ehkä jotain.
+% \subsection{Tila}
 
 \section{Luku n}
 
 % Viimeistä edellinen luku on varsinaisen kontribuution koti: vertailu, soveltaminen, osien synteesi
 % ja mahdolliset evaluointimenetelmät ja -tulokset pääroolissa.
 
-Mitäs tänne?
+META Mitäs tänne?
 
 \section{Yhteenveto}
 
@@ -95,43 +256,21 @@ Mitäs tänne?
 %  Keskittyy impaktiin ja esimerkiksi suosituksiin. Ei vain summeeraa luku kerrallaan aikaisempaa
 %  tekstiä.
 
-Loppuun kappale~\cite{hoh07}, jossa on kaikki viitteet~\cite{tcih96}, jotta niistä~\cite{ifp93}
+META Loppuun kappale~\cite{hoh07}, jossa on kaikki viitteet~\cite{tcih96}, jotta niistä~\cite{ifp93}
 muodostetaan luettelo. Ja sitten yhteenveto.
 
 % %% %% %% %% %% %% %% %% %% %% %% %
 
-% Artikkelissa \emph{A History of Haskell: Being Lazy with Class}~\cite{hoh07} Paul Hudak ym. kertoo Haskellin synnystä, historiasta, toimintaperiaatteista, työkaluista, sovelluksista ja vaikutuksesta. Ennen Haskellia oli olemassa lukuisia funktionaalisia ohjelmointikieliä, mutta vaihtoehtojen ylitarjonta hidasti funktionaalisen ohjelmoinnin omaksumista ja edistystä. Tilanteesta huolestuneet kokoontuivat vuonna 1987 Functional Programming and Computer Architecture -konferenssin yhteydessä pidettyyn tapaamiseen, jossa päätettiin suunnitella ja kehittää uusi yhteinen kieli. Kielen kehittäjät perustivat komitean, jonka yksi ensimmäisistä saavutuksista oli nimetä uusi kieli Haskelliksi.
-
-% 3.0 Goals, principles, and processes
 % Funktionaalisuuden historia: John McCarthy, 50-luvun loppu, Lisp
-
+% 3.0 Goals, principles, and processes
 % 3.1 Haskell is lazy
-
-% Haskell-komitean jäsenten merkittävin yhteinen tavoite oli tehdä Haskellista laiska. Laiskuudella tarkoitetaan sitä, että ohjelmaa suoritettaessa funktion argumentit evaluoidaan vasta siinä vaiheessa, kun niitä tarvitaan. Laiskuudesta oli noin vuosikymmenen verran kokemusta Haskellin synnyn aikaan, joten se ei ollut uusi keksintö. Yleisesti ottaen Haskell-komitean pyrkimys oli käyttää olemassaolevia ja hyvin tunnettuja tekniikoita suunnittelutyönsä pohjana.
-
-% Laiskuus ei ole täysin ongelmaton valinta. Laiskan suorituksen on pidettävä kirjaa siitä, mikä on evaluoimatta, ja se kasvattaa yleiskustannuksia. Kirjanpidosta seuraava hidastus on kuitenkin vakioinen ja verrattain pieni. Suurempi ongelma on se, että laiskan suorituksen tilavaativuutta on vaikea arvioida ja tilavaativuus voi helposti kasvaa ylilineaarisesti. Haskelliin on siksi lisätty sekä tietorakenteita, jotka eivät ole laiskoja, että keino pakottaa lausekkeen evaluaatio, jolloin laiskuuden voi poistaa sellaisesta kohdasta ohjelmaa, jossa se on haitaksi.
-
 % 3.2 Haskell is pure
-
-% Laiskuuden välitön seuraus on se, että evaluointijärjestys määräytyy tarpeen mukaan, jolloin vastaavasti sivuvaikutusten käsittelyä on vaikeaa tai mahdotonta toteuttaa mielekkäästi. Sivuvaikutuksilla tarkoitetaan esimerkiksi siirrännän käsittelyä (engl. input/output), muuttujan arvon manipulointia tai yleisesti ottaen mitä tahansa ulkoista tilanmuutosta. Haskell-komitean ratkaisu oli tehdä Haskellista puhdas kieli, jolloin funktioilla ei ole lainkaan sivuvaikutuksia. Tässä mielessä Haskellin funktiot ovat merkitykseltään vastaavanlaisia matemaattisten funktioiden kanssa -- molemmat palauttavat samalla syötteellä aina saman arvon.
-
-% Puhtauden vaikutukset ovat kaikenkattavat. Koska sivuvaikutuksia ei sallittu, oli Haskellin alkuaikoina siirräntä tuskallisen hankalaa. Pakon edessä kehitettiin monadinen siirräntä, jota voidaan pitää yhtenä Haskellin merkittävimmistä panostuksista ohjelmointikielten kehitykselle.
-
-% Keskustelu siitä, onko puhtaan kielen ja monadisten sivuvaikutusten yhdistelmä paras lähestymistapa ohjelmistojen kehitykselle, on yhä kesken, mutta Haskellin tarjoama ehdotus on ainakin mullistava ja elegantti. Lisäksi sen on synnyttänyt paljon tutkimusta monadeista ja tilan kapseloinnista.
-
 % 3.3 Haskell has type classes
-
-% Tyyppiluokkia pidetään nykyisin yhtenä Haskellin tunnusmerkillisimmistä ominaisuuksista. Alunperin tyyppiluokat tuotiin osaksi kieltä, koska oli tarve ratkaista yhtäsuuruuden vertaamisen ja numeeristen operaatioiden ylikuormitus. Haskell-komitean tavoite oli suunnitella kieli käyttäen olemassaolevia ja perusteellisesti tunnettuja menetelmiä, mutta Haskellia edeltäneissä funktionaalisissa kielissä, kuten Mirandassa ja Standard ML:ssä, ei ylikuormitusta oltu ratkaistu yhtenäisellä tavalla. Lisäksi aiemmin käytetyissä menetelmissä oli heikkouksia, kuten esimerkiksi Mirandan polymorfinen yhtäsuuruusvertailu, joka saattoi johtaa ajonaikaisiin virhetilanteisiin.
-
-% Tyyppiluokat mahdollistavat nimensä mukaisesti tyyppien luokittelun sen perusteella, mitä ylikuormitettuja operaatioita kyseinen tyyppi tukee. Esimerkiksi Haskellissa luokkaan \texttt{Eq} kuuluvalle tyypille on toteutettu yhtäsuuruusvertailu. Tällöin käännösvaiheessa on mahdollista tarkistaa, että \texttt{==}-operaattoria käytetään vain niiden tyyppien kesken, jotka kuuluvat asiaankuuluvaan luokkaan. Vaikka tyyppiluokkien toimivuutta ei oltu todistettu, Haskell-komitea päätyi niiden käyttöön, sillä niiden avulla kaikkien tyyppien ylikuormitus oli ratkaistavissa yhtenäisellä, järjestelmällisellä ja modulaarisella tavalla.
-
 % 3.4 Haskell has no formal semantics
 % 3.5 Haskell is a committee language
 % 3.6 Haskell is a big language
 % 3.7 Haskell and Haskell 98
 % 3.8 Haskell and Miranda
-
-% 6 Haskell as a type-system laboratory
 
 % Monad
 % http://lambda-the-ultimate.org/node/3051
@@ -140,10 +279,6 @@ muodostetaan luettelo. Ja sitten yhteenveto.
 % * type classes: kind *
 % * constructor classes: kind * -> *
 % * multiparameter type classes: e.g. conversion val -> val'
-
-% Jälkikäteen ajateltuna tyyppiluokkien ottaminen osaksi Haskellia oli onnekas valinta, jolla on ollut kauaskantoisia vaikutuksia, sillä tyyppiluokat ovat monikäyttöinen työkalu ja niiden avulla voi tehdä paljon muutakin kuin toteuttaa ylikuormituksen. Yksi merkittävä edistysaskel Haskellin ja tyyppiluokkien kehitykselle oli ehdotus tyyppimuodostajan parametroimisesta tyyppimuuttujan sijaan. Tämä mahdollisti korkeamman asteen polymorfismin (engl. higher-kinded polymorphism), jonka välitön sovellus oli monadien toteuttaminen.
-
-% Aiemmat kielet kuten Miranda tai Standard ML ovat käyttäneet eri menetelmiä ylikuormituksen ratkaisemiseksi paitsi keskenään niin myös kielen sisällä. Esimerkiksi Miranda käyttää eri ratkaisuja yhtäsuuruuden vertaamiseen, aritmeettisiin operaatioihin ja merkkijonojen muuntamiseen.
 
 \bibliographystyle{babalpha-lf}
 \bibliography{viitteet}

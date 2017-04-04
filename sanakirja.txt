@@ -18,6 +18,7 @@ entry point      -- aloituspiste
 ------------------------------------------
 higher-kinded polymorphism   -- korkeamman asteen polymorfismi
 referential transparency     -- viitteellinen läpinäkyvyys
+function compotision         -- funktioiden koostaminen
 call-by-ref/value/name/need
 ==========================================
 https://www.reddit.com/r/programming/comments/ox6s/ask_reddit_what_the_hell_are_monads/coxiv/

@@ -5,6 +5,7 @@ eager            -- ahne
 strict           -- tiukka, vaativa, ehdoton
 non-strict       -- löyhä
 expression       -- lauseke
+denote           -- ilmaista, merkitä, osoittaa, tarkoittaa
 evaluation       -- evaluointi, laskeminen, laskenta
 semantic         -- merkitysopillinen, semanttinen
 reduction        -- sieventäminen
@@ -15,6 +16,10 @@ monad            -- monadi
 constructor      -- konstruktori, muodostaja?
 run-time system  -- suoritusympäristö
 entry point      -- aloituspiste
+action           -- toiminto, toimi, toimenpide
+perform[ance]    -- suoritus, suorittaa, teko, toteuttaa, toteuttaminen
+prefix           -- etuliite
+infix            -- sisämerkintä
 ------------------------------------------
 higher-kinded polymorphism   -- korkeamman asteen polymorfismi
 referential transparency     -- viitteellinen läpinäkyvyys

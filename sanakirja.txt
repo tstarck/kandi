@@ -26,7 +26,11 @@ referential transparency     -- viitteellinen läpinäkyvyys
 function compotision         -- funktioiden koostaminen
 call-by-ref/value/name/need
 ==========================================
-https://www.reddit.com/r/programming/comments/ox6s/ask_reddit_what_the_hell_are_monads/coxiv/
+https://www.reddit.com/r/programming/comments/ox6s/ask_reddit_what_the_hell_are_monads/coxiv
 * What the hell are monads? General model of computation that
   lets you pick and choose the environmental features that you
   want for your computations.
+http://stackoverflow.com/questions/156767/whats-the-difference-between-an-argument-and-a-parameter
+* Parameter is variable in the declaration of function.
+* Argument is the actual value of this variable that gets passed to function.
+http://stackoverflow.com/questions/7746894/are-there-pronounceable-names-for-common-haskell-operators

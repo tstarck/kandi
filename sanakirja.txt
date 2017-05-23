@@ -20,10 +20,13 @@ action           -- toiminto, toimi, toimenpide
 perform[ance]    -- suoritus, suorittaa, teko, toteuttaa, toteuttaminen
 prefix           -- etuliite
 infix            -- sisämerkintä
+total function   -- täydellinen funktio
+partial function -- osittaisfunktio
 ------------------------------------------
 higher-kinded polymorphism   -- korkeamman asteen polymorfismi
 referential transparency     -- viitteellinen läpinäkyvyys
 function compotision         -- funktioiden koostaminen
+denotational semantics       -- matemaattinen merkitys ??
 call-by-ref/value/name/need
 ==========================================
 https://www.reddit.com/r/programming/comments/ox6s/ask_reddit_what_the_hell_are_monads/coxiv

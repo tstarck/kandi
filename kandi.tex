@@ -451,9 +451,51 @@ kuuluva funktioiden ja toimintojen yhdistäminen toimii. Laiskuus ja puhtaus sä
 
 \section{Kategoriateoria ja monadit}
 
-\fixme{Ajatus. Miten jos aluksi kertoisi monadeista kaiken, ja sitten kun monadit on kerrottu, voi
-kertoa, kuinka IO-monadin kontekstissa voidaan tehdä RealWorldin passaamminen ja hävittäminen,
-jolloin on kauniisti palattu takaisin listaukseen 6.}
+\subsection{Historia}
+
+Alunperin kategoriateoria ja monadit tulivat osaksi tietojenkäsittelytiedettä vuonna 1989 Eugenio
+Moggin julkaisun "Computational Lambda-calculus and Monads"~\cite{clcam89,nocam91} myötä. Moggi
+tutki ohjelmointikieliä ja keinoja, joilla tietokoneohjelmista voidaan vetää loogisia
+johtopäätöksiä, kuten esimerkiksi osoittaa kahden ohjelman yhdenmukaisuus.
+
+Lambdakalkyyli oli aiemmin tarjonnut matemaattisen teoreettisen pohjan ohjelmien yhdenmukaisuuden
+vertailuun. Lambdakalkyylin ei kuitenkaan ollut ongelmaton valinta, sillä se vaati ohjelman tai
+proseduurin merkityksen pelkistämisen täydelliseksi funktioksi (engl. \emph{total function}).
+Tällöin menetetään mahdollisuus tarkastella muun muassa pysähtyvyyttä, epädeterministisyyttä ja
+sivuvaikutuksia, jotka ovat yleisiä oikeissa ohjelmissa.
+
+% (1) https://en.wikipedia.org/wiki/Denotational_semantics
+%
+% (2) "Moggi seeks to capture the intuitive notion of a computation in the most general setting
+% possible." -- Kategoriateoreettinen lähestymistapa tarjoaa yhdenmukaisuudelle ja pysähtymiselle
+% luonnollisen selityksen. -- "That existence and equivalence are so readily definable suggests that
+% far from just being a way to hide I/O or statefulness, Monads and their attendant laws express the
+% conditions satisfied by a computation strategy."
+
+Moggin valinta oli käyttää kategoriateorian tarjoamaa semanttista kehystä laskennan mallintamiseen.
+Erityisesti Moggin innovaatio oli hyödyntää monadeja, joka mahdollisti ohjelmointikielen
+ominaisuuksien jakamisen erillisiin osiin niiden semantiikan perusteella. Tällöin esimerkiksi
+siirräntä, poikkeukset tai muut toisistaan poikkeavat ominaisuudet saivat oman erillisen kontekstin,
+jossa niitä voitiin tarkastella.
+
+Philip Wadler havaitsi, että Moggin käyttämä strategia rakenteen luomiseen semantiikan avulla
+soveltuisi myös funktionaalisten ohjelmien jäsentämiseen. Toisin sanoen siinä missä Moggi käytti
+monadeja ohjelmien kuvaamiseen, päätti Wadler hyödyntää monadeja ohjelmien
+ilmaisemiseen~\cite{cm90,teofp92}.
+
+\subsection{Kategoriateoria}
+
+Kategoriateoria (objects, morphisms, composition).
+Funktorit (kokoelmia).
+Monadit (luovat kontekstin).
+
+
+%% Monadit <- kategoriateoria
+%% Koska Moggi tahtoi *kuvata* ohjelmia
+%% Ja sitten Wadler huomasi, että hemmetti, niillä voi myös *ilmaista* ohjelmia
+%  Haskellissa monadit luodaan tyyppiluokkien avulla
+%  Ja lisäksi toki return ja >>= (eli unit ja bind kategoriateorissa)
+% Haskellissa oli kätevästi tyyppiluokat valmiina, ja niiden avulla Monad:n luonti onnistui helposti.
 
 \section{Siirrännän toteutus} %% IFP: Implementing monadic I/O
 
@@ -469,17 +511,10 @@ jolloin on kauniisti palattu takaisin listaukseen 6.}
 % Monadit luovat semantiikkaa eli kontekstia eli ympäristöä ///
 %  Pitää ehkä kertoa, mitä konteksti tai ympäristö tarkoittaa tässä ///
 % Monadilait
-
-% Why!?
-% "Moggi seeks to capture the intuitive notion of a computation in the most general setting
-% possible." -- Kategoriateoreettinen lähestymistapa tarjoaa yhdenmukaisuudelle ja pysähtymiselle
-% luonnollisen selityksen. -- "That existence and equivalence are so readily definable suggests that
-% far from just being a way to hide I/O or statefulness, Monads and their attendant laws express the
-% conditions satisfied by a computation strategy."
 %
 % Monadit ovat semanttinen asia. Haskell ottaa kategoriateorian monadit ja luovat Monadin. Toisin
 % sanoen Haskell mahdollistaa ohjelmoijan määritellä oman laskennallisen ympäristönsä. Eli:
-% " [Moggi(1989)] offers the interpretation of a programming language into one monad, but Haskell
+% "[Moggi(1989)] offers the interpretation of a programming language into one monad, but Haskell
 % reifies monads with Monad. Reification is taking a concept used to describe the semantics of a
 % language and inserting it into the language itself. Monad lets Haskell programmers define their
 % own computational universes."
@@ -488,6 +523,11 @@ jolloin on kauniisti palattu takaisin listaukseen 6.}
 %  Siihen tarvitaan monadeja
 %  Viitteellinen läpinäkyvyys säilyy
 %  doneIO & seqIO :: monoid  ||  bindIO & unitIO :: monad
+
+% 4.3 No way out [https://wiki.haskell.org/All_About_Monads]
+% The wonderful feature of a one-way monad is that it can support side-effects in its monadic
+% operations but prevent them from destroying the functional properties of the non-monadic portions
+% of the program.
 
 % FFI ja C-proseduurien kutsuminen
 %  Lopulta (matalalla tasolla) siirräntä toteutetaan kutsumalla C-proseduureja (käyttöjärjestelmä ja
@@ -552,9 +592,6 @@ jolloin on kauniisti palattu takaisin listaukseen 6.}
 % * type classes: kind *
 % * constructor classes: kind * -> *
 % * multiparameter type classes: e.g. conversion val -> val'
-
-Kappale, jossa viitataan~\cite{hoh07} kaikkiin~\cite{tcih96} lähteisiin, että ne~\cite{ifp93}
-tulevat~\cite{moggi89} näkyviin~\cite{cm90} lopussa.
 
 \bibliographystyle{babalpha-lf}
 \bibliography{viitteet}

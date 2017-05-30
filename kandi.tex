@@ -44,6 +44,7 @@
 
 \mainmatter
 
+\newcommand{\arr}[0]{\rightarrow}
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\fixme}[1]{\emph{#1}}
 
@@ -483,25 +484,58 @@ soveltuisi myös funktionaalisten ohjelmien jäsentämiseen. Toisin sanoen siin�
 monadeja ohjelmien kuvaamiseen, päätti Wadler hyödyntää monadeja ohjelmien
 ilmaisemiseen~\cite{cm90,teofp92}.
 
-\subsection{Kategoriateoria}
+\subsection{Kategoria}
 
-Kategoriateoria (objects, morphisms, composition).
-Funktorit (kokoelmia).
-Monadit (luovat kontekstin).
+Kategoriateoria on abstrakti matemaattinen työkalu, joka on mahdollistanut monien matemaattisten
+käsitteiden formalisoinnin. Kategoriateoreettinen lähdestymistapa mahdollistaa erillaisten
+matemaattisten rakenteiden (kuten esimerkiksi joukkojen, ryhmien tai vektoriavaruuksien) tarkastelun
+rakenteen säilyttävällä tavalla, jolloin kategorian tutkiminen sallii yhteisten piirteiden
+kuvaamisen ja todistamisen.
 
+Kategoria muodostuu kolmesta tekijästä: olioista, morfismeista ja yhdisteen käsitteestä. Morfismeja
+(engl. \emph{morphisms}) kutsutaan myös nuoliksi (engl. \emph{arrow}), mutta nuolella on Haskellissa
+eri merkitys, joten jatkossa pitäydytään nimityksessä morfismi. Merkintä $f : A \rightarrow B$
+tarkoittaa morfismia $f$ lähdeoliolta $A$ kohdeoliolle $B$ jossain kategoriassa $\mathcal{C}$.
+
+Yhdiste (engl. \emph{composition}) on binäärioperaatio morfismeille siten, että jos on olemassa
+morfismit $f : A \arr B$ ja $g : B \arr C$, on oltava myös niiden yhdistemorfismi $g \circ f : A
+\arr C$. Lisäksi morfismit noudattavat kahta sääntöä. Ensinnäkin morfismien yhdisteen tulee olla
+assosiatiivinen. Toisin sanoen:
+
+$$f \circ (g \circ h) = (f \circ g) \circ h$$
+
+Toiseksi missä tahansa kategoriassa $\mathcal{C}$ on olemassa jokaiselle oliolle $A$
+identiteettimorfismi $1_A : A \arr A$. Tarkemmin sanottuna jokaiselle morfismille $f : A \arr B$
+pätee:
+
+$$ 1_A \circ f = f = f \circ 1_B $$
+
+Miten sitten kategoriat liittyvät Haskelliin? Haskellissa on kategoria nimeltään \code{Hask}, jonka
+kontekstissa Haskellin tyypit vastaavat kategorian olioita, funktiot vastaavat morfismeja ja funktio
+\verb|(.)| toimii yhdistemorfismina. Haskellissa on myös funktio \code{id}, joka täyttää
+identiteettimorfismin tehtävän. Koska yhdistemorfismi \verb|(.)| on assosiatiivinen, voidaan todeta,
+että kategoria \code{Hask} täyttää kategoriateorian vaatimukset.
+
+
+%% Kategoriateoria (objects, morphisms, composition).
+%  Funktorit (kokoelmia).
+%  Monadit (luovat kontekstin).
+
+% The category must satisfy an identity axiom and an associative axiom which is analogous
+% to the monoid axioms.
 
 %% Monadit <- kategoriateoria
 %% Koska Moggi tahtoi *kuvata* ohjelmia
 %% Ja sitten Wadler huomasi, että hemmetti, niillä voi myös *ilmaista* ohjelmia
 %  Haskellissa monadit luodaan tyyppiluokkien avulla
 %  Ja lisäksi toki return ja >>= (eli unit ja bind kategoriateorissa)
-% Haskellissa oli kätevästi tyyppiluokat valmiina, ja niiden avulla Monad:n luonti onnistui helposti.
+%  Haskellissa oli kätevästi tyyppiluokat valmiina, ja niiden avulla Monad:n luonti onnistui helposti.
 
 \section{Siirrännän toteutus} %% IFP: Implementing monadic I/O
 
-\fixme{Ajatus. Miten jos aluksi kertoisi monadeista kaiken, ja sitten kun monadit on kerrottu, voi
-kertoa, kuinka IO-monadin kontekstissa voidaan tehdä RealWorldin passaamminen ja hävittäminen,
-jolloin on kauniisti palattu takaisin listaukseen 6.}
+\fixme{Miten jos aluksi kertoisi monadeista kaiken, ja sitten kun monadit on kerrottu, voi kertoa,
+kuinka IO-monadin kontekstissa voidaan tehdä RealWorldin passaamminen ja hävittäminen, jolloin on
+kauniisti palattu takaisin listaukseen 6. Ja se että IO Monad on yksisuuntainen.}
 
 %% % % % % % % % % % % % %%
 %

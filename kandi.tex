@@ -290,20 +290,39 @@ ohjaamiseen on semanttisesti ongelmallista.
 %  extendable to in-place manipulation
 %  only Hindley-Milner required
 
-\section{Nimetön kappale} %% IFP: Overview
+\section{Siirrännän ratkaisu} %% IFP: Overview
 
-\subsection{Toiminto ja suoritus}
+\subsection{Tavoitteet}
 
 % We need a way to reconcile being with doing: an expression in a functional language denotes a value,
 % while an I/O command should perform an action.
 % action -- toimintoa // perform -- suorittaa
 
-Ratkaisuksia siirrännän ongelmiin Haskellissa erotellaan toisistaan olemassaoleminen ja tekeminen.
-\fixme{Muotoile edellinen virke paremmin.} Funktionaalisen kielen lauseke ilmaisee arvoa, kun taas
-siirräntä on luonteeltaan suorite, joka pitäisi toteuttaa. Haskelliin on siksi lisätty
-\code{IO}-tyyppi, joka ilmaisee toimintoa (engl. \emph{action}), jonka suoritus (engl.
-\emph{perform}) voi tehdä siirräntää ja palauttaa arvon. Jatkossa toiminnolla tarkoitetaan aina
-funktiota, joka on \code{IO}-tyyppiä.
+Siirrännä toteuttaminen puhtaassa ja laiskassa kielessä ei ole itsestäänselvä asia, jonka vuoksi
+jotkut funktionaaliset ohjelmointikielet ovat luopuneet puhtauden vaatimuksesta ja hyväksyneet
+sivuvaikutukset osaksi siirrännän toteutusta. Koska Haskellin suunnittelun kulmakivi alusta alkaen
+on ollut puhtaus ja laiskuus, on ratkaisun siirrännän toteuttamiseksi oltava yhteensopiva niiden
+kanssa.
+
+Ohjelmat yleensä kokonaisuuksia, jotka syntyvät pienemmistä osatekijöistä. Funktionaalisten kielien
+luonnollinen vahvuus on perinteisesti ollut se, että funktioita on helppo koostaa osaksi korkeamman
+asteen funktioita (engl. \emph{function composition}). Haskellin siirrännän ratkaisun olisi tulisi
+säilyttää tämä ominaisuus, jotta kielen käytettävyys tai ilmaisuvoima ei heikkene, jos ohjelman
+tarvitsee tehdä siirräntää.
+
+Lisäksi ratkaisun tulisi olla soveltuva ohjelmointikieleen yleisesti. Suotavia ominaisuuksia ovat
+mm. ratkaisun yleishyödyllisyys ja laajennettavuus, tehokkuus ja toteutuksen helppous. Toisin sanoen
+olisi kätevää, jos siirrännän haasteet olisivat ratkaistavissa siten, että samaa mallia voisi
+soveltaa muihin Haskellin kipukohtiin. Ja niin kuin kaikkien ohjelmointiin liittyvien ongelmien
+kanssa ei ratkaisu voi olla laskennallisesti liian vaativa tai sen käyttökelpoisuus heikkenee.
+
+\subsection{Toiminto ja suoritus}
+
+Osana siirrännän ratkaisua on Haskellissa erotettu olemassaoleminen ja tekeminen toisistaan.
+Funktionaalisessa kielessä lauseke ilmaisee arvoa, kun taas siirräntä on luonteeltaan suorite, joka
+tulisi toteuttaa. Siirräntää varten Haskelliin on lisätty \code{IO}-tyyppi, joka ilmaisee toimintoa
+(engl. \emph{action}), jonka suoritus (engl. \emph{perform}) voi toteuttaa siirräntää ja palauttaa
+arvon. Jatkossa toiminnolla tarkoitetaan aina funktiota, joka on \code{IO}-tyyppiä.
 
 \code{IO} on yhdistelmätyyppi (engl. \emph{algebraic data type}), joka ottaa parametrikseen
 palautteen tyypin. Esimerkiksi funktio tyyppiä \code{IO Int} palauttaa kokonaislukuarvon
@@ -380,9 +399,9 @@ class Applicative m => Monad m where
   return :: a -> m a
 \end{lstlisting}
 
-Monissa imperatiivisissa kielissa \code{return} on kielen avainsana, jonka tarkoitus on keskeyttää
-aliohjelman suoritus. Haskellissa \code{return} on funktio, joka nostaa parametrinsa monadiseen
-kontekstiin. \fixme{Selitäppä tuo seuraavaksi! Ehkä jokin esimerkki.}
+Monissa imperatiivisissa ohjelmointikielissa \code{return} on kielen avainsana, jonka tarkoitus on
+keskeyttää aliohjelman suoritus. Haskellissa \code{return} on funktio, joka nostaa parametrinsa
+monadiseen kontekstiin. \fixme{Selitäppä tuo seuraavaksi! Ehkä jokin esimerkki.}
 
 Then, jonka voi kääntää suomeksi \emph{sitten}, on bindin erikoistapaus, jolla yhdistetään kaksi
 toimintoa, joista ensimmäinen ei palauta arvoa, jota toinen toiminto käyttäisi. Then ei ole
@@ -495,12 +514,12 @@ kuvaamisen ja todistamisen.
 Kategoria muodostuu kolmesta tekijästä: olioista, morfismeista ja yhdisteen käsitteestä. Morfismeja
 (engl. \emph{morphisms}) kutsutaan myös nuoliksi (engl. \emph{arrow}), mutta nuolella on Haskellissa
 eri merkitys, joten jatkossa pitäydytään nimityksessä morfismi. Merkintä $f : A \rightarrow B$
-tarkoittaa morfismia $f$ lähdeoliolta $A$ kohdeoliolle $B$ jossain kategoriassa $\mathcal{C}$.
+tarkoittaa morfismia $f$ lähdeoliolta $A$ kohdeoliolle $B$ jossain oletetussa kategoriassa.
 
-Yhdiste (engl. \emph{composition}) on binäärioperaatio morfismeille siten, että jos on olemassa
-morfismit $f : A \arr B$ ja $g : B \arr C$, on oltava myös niiden yhdistemorfismi $g \circ f : A
-\arr C$. Lisäksi morfismit noudattavat kahta sääntöä. Ensinnäkin morfismien yhdisteen tulee olla
-assosiatiivinen. Toisin sanoen:
+Yhdiste (engl. \emph{composition}) on binäärioperaatio morfismeille siten, että jos samassa
+kategoriassa on olemassa morfismit $f : A \arr B$ ja $g : B \arr C$, on oltava myös niiden
+yhdistemorfismi $g \circ f : A \arr C$. Lisäksi morfismit noudattavat kahta sääntöä. Ensinnäkin
+morfismien yhdisteen tulee olla assosiatiivinen. Toisin sanoen:
 
 $$f \circ (g \circ h) = (f \circ g) \circ h$$
 
@@ -531,7 +550,11 @@ että kategoria \code{Hask} täyttää kategoriateorian vaatimukset.
 %  Ja lisäksi toki return ja >>= (eli unit ja bind kategoriateorissa)
 %  Haskellissa oli kätevästi tyyppiluokat valmiina, ja niiden avulla Monad:n luonti onnistui helposti.
 
-\section{Siirrännän toteutus} %% IFP: Implementing monadic I/O
+\section{Siirrännän toteutus}
+%% IFP: Implementing monadic I/O
+%% Jones: Tackling the Awkward Squad
+
+% Ks. listaus 8 ja siellä GHC:n määritelmä Monad'sta. Ei varmaan sovi sinne, mutta ehkä ok täällä
 
 \fixme{Miten jos aluksi kertoisi monadeista kaiken, ja sitten kun monadit on kerrottu, voi kertoa,
 kuinka IO-monadin kontekstissa voidaan tehdä RealWorldin passaamminen ja hävittäminen, jolloin on

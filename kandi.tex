@@ -57,7 +57,12 @@
 % 1.1 Peliteoria ja pelipuu
 % 1.2 Minimax ja heuristiikka
 
-\fixme{Johdanto: (1) Taustaa (2) Mitä teksti käsittelee}
+\fixme{Kirjoita oikea johdanto eli mitä teksti käsittelee}
+
+
+\section{Historiaa evt}
+
+\fixme{Nää kappaleiden nimet pitää funtsia uusiksi, tämä on joku Haskellin esittely vissiin}
 
 \subsection{Haskell}
 
@@ -151,7 +156,8 @@ summa :: Int -> Int -> Int
 summa x y = x + y
 \end{lstlisting}
 
-\section{Siirrännän vaikeus laiskassa ja puhtaassa kielessä}
+
+\section{Siirrännän vaikeus}
 
 % Ollaanko me määritelty siirräntä missään vaiheessa? Tulostus, syötteen lukeminen, FFI,
 % tilamanipulaatiot...
@@ -281,22 +287,7 @@ muuttunut huomattavasti monimutkaisemmaksi. Ohjelma on vaikeaselkoinen, koska er
 tarkoitus ei ole ilmeinen, ja toisaalta tekaistujen parametrien käyttö ohjelman suorituksen
 ohjaamiseen on semanttisesti ongelmallista.
 
-% Tähän voisi lisätä monadisen I/O:n hyvät puolet:
-%  composable
-%  easily extensible
-%  effiient
-%  ^ archieved by transformations
-%  extendable to interleaved I/O
-%  extendable to in-place manipulation
-%  only Hindley-Milner required
-
-\section{Siirrännän ratkaisu} %% IFP: Overview
-
 \subsection{Tavoitteet}
-
-% We need a way to reconcile being with doing: an expression in a functional language denotes a value,
-% while an I/O command should perform an action.
-% action -- toimintoa // perform -- suorittaa
 
 Siirrännä toteuttaminen puhtaassa ja laiskassa kielessä ei ole itsestäänselvä asia, jonka vuoksi
 jotkut funktionaaliset ohjelmointikielet ovat luopuneet puhtauden vaatimuksesta ja hyväksyneet
@@ -315,6 +306,198 @@ mm. ratkaisun yleishyödyllisyys ja laajennettavuus, tehokkuus ja toteutuksen he
 olisi kätevää, jos siirrännän haasteet olisivat ratkaistavissa siten, että samaa mallia voisi
 soveltaa muihin Haskellin kipukohtiin. Ja niin kuin kaikkien ohjelmointiin liittyvien ongelmien
 kanssa ei ratkaisu voi olla laskennallisesti liian vaativa tai sen käyttökelpoisuus heikkenee.
+
+
+\section{Kategoriateoria}
+
+\subsection{Historia}
+
+Alunperin kategoriateoria ja monadit tulivat osaksi tietojenkäsittelytiedettä vuonna 1989 Eugenio
+Moggin julkaisun "Computational Lambda-calculus and Monads"~\cite{clcam89,nocam91} myötä. Moggi
+tutki ohjelmointikieliä ja keinoja, joilla tietokoneohjelmista voidaan vetää loogisia
+johtopäätöksiä, kuten esimerkiksi osoittaa kahden ohjelman yhdenmukaisuus.
+
+Lambdakalkyyli oli aiemmin tarjonnut matemaattisen teoreettisen pohjan ohjelmien yhdenmukaisuuden
+vertailuun. Lambdakalkyylin ei kuitenkaan ollut ongelmaton valinta, sillä se vaati ohjelman tai
+proseduurin merkityksen pelkistämisen täydelliseksi funktioksi (engl. \emph{total function}).
+Tällöin menetetään mahdollisuus tarkastella muun muassa pysähtyvyyttä, epädeterministisyyttä ja
+sivuvaikutuksia, jotka ovat yleisiä oikeissa ohjelmissa.
+
+% (1) https://en.wikipedia.org/wiki/Denotational_semantics
+%
+% (2) "Moggi seeks to capture the intuitive notion of a computation in the most general setting
+% possible." -- Kategoriateoreettinen lähestymistapa tarjoaa yhdenmukaisuudelle ja pysähtymiselle
+% luonnollisen selityksen. -- "That existence and equivalence are so readily definable suggests that
+% far from just being a way to hide I/O or statefulness, Monads and their attendant laws express the
+% conditions satisfied by a computation strategy."
+
+Moggin valinta oli käyttää kategoriateorian tarjoamaa semanttista kehystä laskennan mallintamiseen.
+Erityisesti Moggin innovaatio oli hyödyntää monadeja, joka mahdollisti ohjelmointikielen
+ominaisuuksien jakamisen erillisiin osiin niiden semantiikan perusteella. Tällöin esimerkiksi
+siirräntä, poikkeukset tai muut toisistaan poikkeavat ominaisuudet saivat oman erillisen kontekstin,
+jossa niitä voitiin tarkastella.
+
+Philip Wadler havaitsi, että Moggin käyttämä strategia rakenteen luomiseen semantiikan avulla
+soveltuisi myös funktionaalisten ohjelmien jäsentämiseen. Toisin sanoen siinä missä Moggi käytti
+monadeja ohjelmien kuvaamiseen, päätti Wadler hyödyntää monadeja ohjelmien
+ilmaisemiseen~\cite{cm90,teofp92}.
+
+\subsection{Kategoria}
+
+Kategoriateoria on abstrakti matemaattinen työkalu, joka mahdollistaa monien matemaattisten
+käsitteiden formalisoinnin. Kategoriateoreettinen lähdestymistapa mahdollistaa erillaisten
+matemaattisten rakenteiden (kuten esimerkiksi joukkojen, ryhmien tai vektoriavaruuksien) tarkastelun
+rakenteen säilyttävällä tavalla, jolloin kategorian tutkiminen sallii yhteisten piirteiden
+kuvaamisen ja todistamisen.
+
+Kategoria muodostuu kahdesta tekijästä, jotka ovat merkityksellisiä Haskellin näkökulmasta: olioista
+ja morfismeista. Morfismeja (engl. \emph{morphisms}) kutsutaan myös nuoliksi (engl. \emph{arrow}),
+mutta nuolella on Haskellissa eri merkitys, joten jatkossa pitäydytään nimityksessä morfismi.
+Merkintä $f : A \rightarrow B$ tarkoittaa morfismia $f$ lähdeoliolta $A$ kohdeoliolle $B$ jossain
+oletetussa kategoriassa.
+
+Yhdiste (engl. \emph{composition}) on binäärioperaatio morfismeille siten, että jos samassa
+kategoriassa on olemassa morfismit $f : A \arr B$ ja $g : B \arr C$, on oltava myös niiden
+yhdistemorfismi $g \circ f : A \arr C$. Lisäksi morfismit noudattavat kahta sääntöä. Ensinnäkin
+morfismien yhdisteen tulee olla assosiatiivinen. Toisin sanoen:
+
+$$f \circ (g \circ h) = (f \circ g) \circ h$$
+
+Toiseksi missä tahansa kategoriassa $\mathcal{C}$ on olemassa jokaiselle oliolle $A$
+identiteettimorfismi $1_A : A \arr A$. Tarkemmin sanottuna jokaiselle morfismille $f : A \arr B$
+pätee:
+
+$$ 1_A \circ f = f = f \circ 1_B $$
+
+%% https://wiki.haskell.org/Hask
+
+Miten sitten kategoriat liittyvät Haskelliin? Haskellin yhteydessä puhutaan usein kategoriasta
+nimeltään \code{Hask}, joka tarjoaa teoreettisen kehyksen ohjelmointikielen itsensä tarkasteluun.
+\code{Hask}-kategorian kontekstissa Haskellin tyypit vastaavat kategoriateorian olioita ja funktiot
+vastaavat morfismeja. Lisäksi funktiokompositio \verb|(.)| toimii Haskellissa yhdistemorfismina,
+sillä se on assosiatiivinen, ja funktio \code{id} toteuttaa identiteettimorfismin vaatimuksen.
+
+Päällisin puolin näyttää siltä, että Haskellin ominaisuudet luovat suoraan kategorian siten kuin
+kategoriateoria sen määrittelee. Tämä ei kuitenkaan pidä paikkaansa, sillä on olemassa rajatapauksia
+erityisesti määrittelemättömien ja tyhjien arvojen kanssa, joissa Haskell ei käyttäydy
+kategoriateorian sääntöjen mukaisesti. Sen sijaan ei ole väärin ajatella, että Haskell on omaksunut
+vaikutteita kategoriateoriasta ja sen seurauksena Haskellin monadit ovat analogisia kategoriateorien
+monadien kanssa.
+
+% The category must satisfy an identity axiom and an associative axiom
+% which is analogous to the monoid axioms.
+
+% \subsection{Monoidi}
+% \fixme{Onko tarpeen puhua monoideista?}
+
+% \subsection{Funktori}
+% \fixme{Onko tarpeen puhua funktoreista?}
+
+\subsection{Monadi}
+
+\begin{lstlisting}[float,float,label={lst:monad},caption={Monad-tyyppiluokka}]
+class Applicative m => Monad m where
+  (>>=)  :: forall a b. m a -> (a -> m b) -> m b
+  (>>)   :: forall a b. m a -> m b -> m b
+  return :: a -> m a
+\end{lstlisting}
+
+Monadi on yksi kategoriateorian yleisimmin hyödynnetyistä rakenteista, joka on osoittautunut
+monikäyttöiseksi työkaluksi myös ohjelmointikieliä tarkasteltaessa. Erityisesti funktionaalisten
+kielian tapauksessa monadit sallivat laskennan kuvaamisen riittävän abstraktilla tavalla, jotta ne
+ovat päätyneet ratkaisemaan lukuisia käyttötapauksia. Pelkästään Haskellin standardikirjasto tarjoaa
+monadeihin tukeutuvia työkaluja paitsi siirrännän niin myös tilan, virheenkäsittelyn ja
+epädeterministisen laskennan tarpeisiin.
+
+Monadit ovat toteutettu Haskellissa tyyppiluokkana. Listauksessa~\ref{lst:monad} on lainaus
+Haskell-kääntäjän GHC (\emph{Glasgow Haskell Compiler}) lähdekoodista, josta on nähtävissä
+\code{Monad}-luokka ja tyyppimääritelmät sen kolmelle metodille (eli luokan funktiolle). Yksittäiset
+tyypit, joille periytetään monadin ominaisuudet, määrittelevät tarkoitukseensa sopivan toteutuksen
+vaadituille metodeille.
+
+Jotta luotu tyyppi käyttäytyy oikean monadin tavoin, täytyy metodien toteutuksen seurata kolmea
+sääntöä, joita kutsutaan myös monadilaeiksi (engl. \emph{monad laws}). Säännöt pitävät huolta siitä,
+että monadien yhdisteet toimivat assosiatiivisesti ja että metodit säilyttävät toimintojen samuuden.
+Haskellin ilmaisuvoima ei riitä siihen, että kääntäjä pystyisi todistamaan jonkun tyypin täyttävän
+monadilait, joten se tehtävä jää ohjelmoijan vastuulle, jos hän tahtoo luoda uuden monadin.
+
+% Tähän voi ehkä palata sitten kun metodit on käsitelty
+%\begin{lstlisting}[float,float,label={lst:laws},caption={Monadilait}]
+%return a >>= f                  =  f a
+%m        >>= return             =  m
+%m        >>= (\x -> f x >>= h)  =  (m >>= f) >>= h
+%\end{lstlisting}
+
+\subsection{Monadin toteutus}
+
+Mitä monadiin kuuluvat funktiot sitten tekevät? Ensimmäinen niistä on \code{>>=}, joka luetaan
+\emph{bind} tai suomeksi \emph{sidos}. Kuten nimi viittaa sidoksen avulla voi yhdistää kaksi monadin
+toiminto. Tyypillisesti sidosta käytetään sisämerkintänä argumenttiensa välissä. Esimerkiksi \code{a
+>>= f} tarkoittaa, että toimisto \code{a} ja funktio \code{f} ketjutetaan yhteen siten, että
+evaluaation aikaan toiminto \code{a} suoritetaan, sen paluuarvo sovelletaan funktioon \code{f},
+josta saadaan koko lauseen paluuarvo.
+
+Toinen monadin funktio \code{>>} luetaan \emph{then}, jonka voi kääntää suomeksi \emph{sitten}. Se
+toimii muutoin samankaltaisesti sidoksen kanssa, mutta se ei huomioi ensimmäisen toiminnon
+paluuarvoa. Toisin sanoen sitä voi käyttää yhdistämään toimintoja, joiden paluuarvoilla ei ole
+merkitystä. Jos tarkkoja ollaan \code{>>} ei ole teoriassa pakollinen toimivan monadin
+toteuttamiseksi, mutta käytännön ohjelmoinnin ja koodin selkeyden näkökulmasta se on hyödyllinen.
+
+% return on nimeltään unit kategoriateoriassa
+
+Useissa imperatiivisissä ohjelmointikielissä tunnetaan avainsana \code{return}, jonka tarkoitus on
+keskeyttää aliohjelman suoritus ja palauttaa jokin arvo. Haskellissa \code{return} on funktio, joka
+nostaa argumenttinsa monadin kontekstiin. Toisin sanoen \code{return a} evaluoituu monadiseksi
+tyypiksi, joka pitää sisällään arvon \code{a}. Funktion \code{return} nimi on valitettava sillä se
+aiheuttaa paljon hämmennystä uusien Haskellin harrastajien keskuudessa.
+
+\subsection{Toimiva ohjelma}
+
+Listauksessa~\ref{lst:then} on päivitetty versio luvun~\ref{subsec:laiskuus} esimerkistä. Ohjelmaa
+on muutettu siten, että tulostustoiminnot ovat yhdistetty \emph{then}-funktiolla, jonka lisäksi
+tyyppimääritelmä on kirjoitettu näkyviin sen korostamiseksi, että toiminnot ovat suoritettava
+IO-monadin kontekstissa. Tällä kertaa ohjelma on täysin toimiva ja se tulostaa merkkijonot
+toivotulla tavalla.
+
+\begin{lstlisting}[float,label={lst:then},caption={Toimiva tulostus}]
+sanoHeiMaailma :: IO ()
+sanoHeiMaailma = putStr "Hei" >> putStr " maailma"
+\end{lstlisting}
+
+Päällepäin katsottuna ei kuitenkaan ole ilmeistä, kuinka ohjelma eroaa
+listauksesta~\ref{lst:jarjestys}? Näemme että ohjelma hyödyntää \code{then}-funktiota, mutta mikä
+mekanismi pitää huolta, että tulostukset ylipäätään tapahtuvat. Ja onko ohjelma yhä puhdas ja
+viitteellisesti läpinäkyvä?
+
+% onko composition takuu järjestyksestä selitetty? no ei oo
+% miten main :: IO () toimii? no koska maailma
+
+%  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %
+
+%  Monads can be thought of as composable computation descriptions.
+%  The essence of monad is thus separation of composition timeline
+%    from the composed computation's execution timeline,
+%    as well as the ability of computation to implicitly carry extra data,
+%    as pertaining to the computation itself, in addition to its one output,
+%    that it will produce when run.
+
+%  Haskellissa oli kätevästi tyyppiluokat valmiina, ja niiden avulla Monad:n luonti helppo
+
+%  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %
+
+\section{Siirrännän toteutus}
+
+% Tähän voisi lisätä monadisen I/O:n hyvät puolet:
+%  composable
+%  easily extensible
+%  efficient
+%  ^ archieved by transformations
+%  extendable to interleaved I/O
+%  extendable to in-place manipulation
+%  only Hindley-Milner required
+
+% We need a way to reconcile being with doing: an expression in a functional
+% language denotes a value, while an I/O command should perform an action.
 
 \subsection{Toiminto ja suoritus}
 
@@ -343,6 +526,7 @@ Koska Haskell-ohjelma on funktionaalisesta semantiikasta johtuen mielivaltainen 
 matalamman tason funktioita ja toimintoja, johtaa \code{main}-toiminnon suoritus myös matalan tason
 toimintojen suorittamiseen silloin, kun \code{main}-toiminnon suoritus sitä vaatii.
 
+%
 \subsection{Toimintojen yhdistäminen}
 
 Listauksessa~\ref{lst:bind} on ohjelma, joka lukee merkin vakiosyötteestä ja tulostaa sen
@@ -355,6 +539,7 @@ käytetään olemattoman arvon merkitsemiseen, ja niiden käyttö on välttämä
 sillä \code{IO} vaatii tyyppiparametrin.
 
 \begin{lstlisting}[float,label={lst:bind},caption={Kompositio ja sidosfunktion käyttö}]
+fixme   :: fixme
 getChar :: IO Char
 putChar :: Char -> IO ()
 (>>=)   :: IO a -> (a -> IO b) -> IO b
@@ -385,27 +570,20 @@ jolloin laiska evaluaatio ei voi enää suorittaa siirräntätoimintoja mielival
 
 \subsection{Monadi}
 
-Bind eli \verb|(>>=)| ei ole sattumalta osa Haskellin standardikirjastoa vaan yhdessä
-\code{return}-funktion kanssa ne täyttävät teoreettiset vaatimukset Haskellin Monad-tyyppiluokan
-määritelmälle. Lisäksi määritelmään kuuluu myös \emph{then}, joka kirjoitetaan \verb|(>>)|.
+% TODO Täällä merkataan operaattoreita tekstissä sulkujen sisällä (>>), mutta koodissa ilman. Pitää
+%      ehkä mainita kirjoitusasusta jotain
 
-Listauksessa~\ref{lst:monad} on lainaus Glasgow Haskell Compilerin (jatkossa \emph{GHC})
-lähdekoodista, jossa Monad määritellään. \fixme{Tarvitaanko tätä ollenkaan?}
+%Bind eli \verb|(>>=)| ei ole sattumalta osa Haskellin standardikirjastoa vaan yhdessä
+%\code{return}-funktion kanssa ne täyttävät teoreettiset vaatimukset Haskellin Monad-tyyppiluokan
+%määritelmälle. Lisäksi määritelmään kuuluu myös \emph{then}, joka kirjoitetaan \verb|(>>)|.
 
-\begin{lstlisting}[float,float,label={lst:monad},caption={Monad-tyyppiluokka}]
-class Applicative m => Monad m where
-  (>>=)  :: forall a b. m a -> (a -> m b) -> m b
-  (>>)   :: forall a b. m a -> m b -> m b
-  return :: a -> m a
-\end{lstlisting}
+%Monissa imperatiivisissa ohjelmointikielissa \code{return} on kielen avainsana, jonka tarkoitus on
+%keskeyttää aliohjelman suoritus. Haskellissa \code{return} on funktio, joka nostaa parametrinsa
+%monadiseen kontekstiin. \fixme{Selitäppä tuo seuraavaksi! Ehkä jokin esimerkki.}
 
-Monissa imperatiivisissa ohjelmointikielissa \code{return} on kielen avainsana, jonka tarkoitus on
-keskeyttää aliohjelman suoritus. Haskellissa \code{return} on funktio, joka nostaa parametrinsa
-monadiseen kontekstiin. \fixme{Selitäppä tuo seuraavaksi! Ehkä jokin esimerkki.}
-
-Then, jonka voi kääntää suomeksi \emph{sitten}, on bindin erikoistapaus, jolla yhdistetään kaksi
-toimintoa, joista ensimmäinen ei palauta arvoa, jota toinen toiminto käyttäisi. Then ei ole
-pakollinen monadin toteuttamiseksi, mutta se on hyödyllinen käytännön ohjelmoinnin näkökulmasta.
+%Then, jonka voi kääntää suomeksi \emph{sitten}, on bindin erikoistapaus, jolla yhdistetään kaksi
+%toimintoa, joista ensimmäinen ei palauta arvoa, jota toinen toiminto käyttäisi. Then ei ole
+%pakollinen monadin toteuttamiseksi, mutta se on hyödyllinen käytännön ohjelmoinnin näkökulmasta.
 
 Listauksessa~\ref{lst:then} on korjattu versio luvun~\ref{subsec:laiskuus} esimerkistä. Ohjelmaa on
 muutettu niin, että tulostustoiminnot ovat yhdistetty then-funktiolla, joka takaa sen, että
@@ -469,96 +647,13 @@ Haskellin ja funktionaalisen ohjelmoinnin toivotuista ominaisuuksista pidetään
 Tyyppipäättely ja -turvallisuus auttavat ohjelmointivirheiden havaitsemista. Funktionaalisuuteen
 kuuluva funktioiden ja toimintojen yhdistäminen toimii. Laiskuus ja puhtaus säilyvät.
 
-\section{Kategoriateoria ja monadit}
 
-\subsection{Historia}
-
-Alunperin kategoriateoria ja monadit tulivat osaksi tietojenkäsittelytiedettä vuonna 1989 Eugenio
-Moggin julkaisun "Computational Lambda-calculus and Monads"~\cite{clcam89,nocam91} myötä. Moggi
-tutki ohjelmointikieliä ja keinoja, joilla tietokoneohjelmista voidaan vetää loogisia
-johtopäätöksiä, kuten esimerkiksi osoittaa kahden ohjelman yhdenmukaisuus.
-
-Lambdakalkyyli oli aiemmin tarjonnut matemaattisen teoreettisen pohjan ohjelmien yhdenmukaisuuden
-vertailuun. Lambdakalkyylin ei kuitenkaan ollut ongelmaton valinta, sillä se vaati ohjelman tai
-proseduurin merkityksen pelkistämisen täydelliseksi funktioksi (engl. \emph{total function}).
-Tällöin menetetään mahdollisuus tarkastella muun muassa pysähtyvyyttä, epädeterministisyyttä ja
-sivuvaikutuksia, jotka ovat yleisiä oikeissa ohjelmissa.
-
-% (1) https://en.wikipedia.org/wiki/Denotational_semantics
-%
-% (2) "Moggi seeks to capture the intuitive notion of a computation in the most general setting
-% possible." -- Kategoriateoreettinen lähestymistapa tarjoaa yhdenmukaisuudelle ja pysähtymiselle
-% luonnollisen selityksen. -- "That existence and equivalence are so readily definable suggests that
-% far from just being a way to hide I/O or statefulness, Monads and their attendant laws express the
-% conditions satisfied by a computation strategy."
-
-Moggin valinta oli käyttää kategoriateorian tarjoamaa semanttista kehystä laskennan mallintamiseen.
-Erityisesti Moggin innovaatio oli hyödyntää monadeja, joka mahdollisti ohjelmointikielen
-ominaisuuksien jakamisen erillisiin osiin niiden semantiikan perusteella. Tällöin esimerkiksi
-siirräntä, poikkeukset tai muut toisistaan poikkeavat ominaisuudet saivat oman erillisen kontekstin,
-jossa niitä voitiin tarkastella.
-
-Philip Wadler havaitsi, että Moggin käyttämä strategia rakenteen luomiseen semantiikan avulla
-soveltuisi myös funktionaalisten ohjelmien jäsentämiseen. Toisin sanoen siinä missä Moggi käytti
-monadeja ohjelmien kuvaamiseen, päätti Wadler hyödyntää monadeja ohjelmien
-ilmaisemiseen~\cite{cm90,teofp92}.
-
-\subsection{Kategoria}
-
-Kategoriateoria on abstrakti matemaattinen työkalu, joka on mahdollistanut monien matemaattisten
-käsitteiden formalisoinnin. Kategoriateoreettinen lähdestymistapa mahdollistaa erillaisten
-matemaattisten rakenteiden (kuten esimerkiksi joukkojen, ryhmien tai vektoriavaruuksien) tarkastelun
-rakenteen säilyttävällä tavalla, jolloin kategorian tutkiminen sallii yhteisten piirteiden
-kuvaamisen ja todistamisen.
-
-Kategoria muodostuu kolmesta tekijästä: olioista, morfismeista ja yhdisteen käsitteestä. Morfismeja
-(engl. \emph{morphisms}) kutsutaan myös nuoliksi (engl. \emph{arrow}), mutta nuolella on Haskellissa
-eri merkitys, joten jatkossa pitäydytään nimityksessä morfismi. Merkintä $f : A \rightarrow B$
-tarkoittaa morfismia $f$ lähdeoliolta $A$ kohdeoliolle $B$ jossain oletetussa kategoriassa.
-
-Yhdiste (engl. \emph{composition}) on binäärioperaatio morfismeille siten, että jos samassa
-kategoriassa on olemassa morfismit $f : A \arr B$ ja $g : B \arr C$, on oltava myös niiden
-yhdistemorfismi $g \circ f : A \arr C$. Lisäksi morfismit noudattavat kahta sääntöä. Ensinnäkin
-morfismien yhdisteen tulee olla assosiatiivinen. Toisin sanoen:
-
-$$f \circ (g \circ h) = (f \circ g) \circ h$$
-
-Toiseksi missä tahansa kategoriassa $\mathcal{C}$ on olemassa jokaiselle oliolle $A$
-identiteettimorfismi $1_A : A \arr A$. Tarkemmin sanottuna jokaiselle morfismille $f : A \arr B$
-pätee:
-
-$$ 1_A \circ f = f = f \circ 1_B $$
-
-Miten sitten kategoriat liittyvät Haskelliin? Haskellissa on kategoria nimeltään \code{Hask}, jonka
-kontekstissa Haskellin tyypit vastaavat kategorian olioita, funktiot vastaavat morfismeja ja funktio
-\verb|(.)| toimii yhdistemorfismina. Haskellissa on myös funktio \code{id}, joka täyttää
-identiteettimorfismin tehtävän. Koska yhdistemorfismi \verb|(.)| on assosiatiivinen, voidaan todeta,
-että kategoria \code{Hask} täyttää kategoriateorian vaatimukset.
-
-
-%% Kategoriateoria (objects, morphisms, composition).
-%  Funktorit (kokoelmia).
-%  Monadit (luovat kontekstin).
-
-% The category must satisfy an identity axiom and an associative axiom which is analogous
-% to the monoid axioms.
-
-%% Monadit <- kategoriateoria
-%% Koska Moggi tahtoi *kuvata* ohjelmia
-%% Ja sitten Wadler huomasi, että hemmetti, niillä voi myös *ilmaista* ohjelmia
-%  Haskellissa monadit luodaan tyyppiluokkien avulla
-%  Ja lisäksi toki return ja >>= (eli unit ja bind kategoriateorissa)
-%  Haskellissa oli kätevästi tyyppiluokat valmiina, ja niiden avulla Monad:n luonti onnistui helposti.
-
-\section{Siirrännän toteutus}
 %% IFP: Implementing monadic I/O
 %% Jones: Tackling the Awkward Squad
 
 % Ks. listaus 8 ja siellä GHC:n määritelmä Monad'sta. Ei varmaan sovi sinne, mutta ehkä ok täällä
 
-\fixme{Miten jos aluksi kertoisi monadeista kaiken, ja sitten kun monadit on kerrottu, voi kertoa,
-kuinka IO-monadin kontekstissa voidaan tehdä RealWorldin passaamminen ja hävittäminen, jolloin on
-kauniisti palattu takaisin listaukseen 6. Ja se että IO Monad on yksisuuntainen.}
+Konsepti virtuaalisesta Maailma'sta
 
 %% % % % % % % % % % % % %%
 %
@@ -634,6 +729,7 @@ kauniisti palattu takaisin listaukseen 6. Ja se että IO Monad on yksisuuntainen
 
 % \section{Luku n} Viimeistä edellinen luku on varsinaisen kontribuution koti: vertailu,
 % soveltaminen, osien synteesi ja mahdolliset evaluointimenetelmät ja -tulokset pääroolissa.
+
 
 \section{Yhteenveto}
 

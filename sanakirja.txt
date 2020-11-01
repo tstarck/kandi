@@ -37,3 +37,5 @@ http://stackoverflow.com/questions/156767/whats-the-difference-between-an-argume
 * Parameter is variable in the declaration of function.
 * Argument is the actual value of this variable that gets passed to function.
 http://stackoverflow.com/questions/7746894/are-there-pronounceable-names-for-common-haskell-operators
+* Kerolan sanasto
+https://www.cs.helsinki.fi/group/nodes/kurssit/kj/sanasto.html

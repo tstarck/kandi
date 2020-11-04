@@ -499,19 +499,31 @@ viitteellisesti läpinäkyvä?
 % We need a way to reconcile being with doing: an expression in a functional
 % language denotes a value, while an I/O command should perform an action.
 
+\subsection{IO-monadi}
+
+Siirräntää varten Haskelliin on lisätty \code{IO}-tyyppi, joka joka ilmaisee toimintoa. \code{IO} on
+yhdistelmätyyppi (engl. \emph{algebraic data type}), joka ottaa parametrikseen toisen tyypin, joka
+ilmaisee toiminnon palautteen tyypin. Esimerkiksi funktio tyyppiä \code{IO Int} voi suorittaa
+siirräntää ja palauttaa sen jälkeen kokonaislukuarvon.
+
+\code{IO}-tyypille on myös määritelty \emph{Monad}-tyyppiluokan ilmentymä, joka tarkoittaa sitä,
+että \code{IO}-tyypille on määritelty monadiset operaatiot \emph{bind}, \emph{then} ja
+\emph{return}. Koska siirrännän toimiminen vaatii monadin ominaisuudet ja ne ovat \emph{IO}:n
+leimallinen piirre, on tyypillistä puhua \emph{IO-monadista} IO-tyypin sijaan.
+
+Samoin kuin monet aiemmat funktionaaliset ohjelmointikielet, myös Haskell käyttää
+Hindley--Milner-tyyppijärjestelmää. Haskellissa on myös alusta alkaen ollut tyyppiluokat osana
+kielen ilmaisuvoimaa. Kun IO-monadi päätettiin lisättiin Haskelliin 90-luvun alussa, oli se
+teknisessä mielessä verrattain helppo operaatio, sillä monadit olivat luonteva toteuttaa
+tyyppiluokkien avulla ja IO-tyyppi soveltui Hindley--Milner-järjestelmään sellaisenaan.
+
 \subsection{Toiminto ja suoritus}
 
-Osana siirrännän ratkaisua on Haskellissa erotettu olemassaoleminen ja tekeminen toisistaan.
 Funktionaalisessa kielessä lauseke ilmaisee arvoa, kun taas siirräntä on luonteeltaan suorite, joka
-tulisi toteuttaa. Siirräntää varten Haskelliin on lisätty \code{IO}-tyyppi, joka ilmaisee toimintoa
-(engl. \emph{action}), jonka suoritus (engl. \emph{perform}) voi toteuttaa siirräntää ja palauttaa
-arvon. Jatkossa toiminnolla tarkoitetaan aina funktiota, joka on \code{IO}-tyyppiä.
-
-\code{IO} on yhdistelmätyyppi (engl. \emph{algebraic data type}), joka ottaa parametrikseen
-palautteen tyypin. Esimerkiksi funktio tyyppiä \code{IO Int} palauttaa kokonaislukuarvon
-suoritettuaan siirrännän. \code{IO}-tyypin määrittelyyn riittää klassinen
-Hindley--Milner-tyyppijärjestelmä, joten sen käyttöönotto ei vaatinut muita muutoksia Haskelliin.
-\fixme{HM:ää ei ole mainittu aiemmin. Se pitäisi ehkä laittaa edelliseen kappaleeseen.}
+tulisi toteuttaa. Osana siirrännän ratkaisua on Haskellissa erotettu olemassaoleminen ja tekeminen
+toisistaan. Tätä jakoa edustaa IO-monadi, joka on toiminto (engl. \emph{action}) ja jonka suoritus
+(engl. \emph{perform}) voi toteuttaa siirräntää ja palauttaa arvon. Jatkossa \emph{toiminto}
+tarkoittaa aina jotain funktiota, joka on \code{IO}-tyyppiä.
 
 Erottelemalla toiminnon suorittamisesta \code{IO}-tyyppiset funktiot kapseloivat siirrännän siten,
 että ne ovat yhteensopivat Haskellin puhtaan funktionaalisen paradigman kanssa säilyttäen
@@ -519,36 +531,109 @@ viitteellisen läpinäkyvyyden. Toisin sanoen toiminnot ovat tavallisia funktiot
 välittää argumenttina, koostaa osaksi korkeamman asteen funktioita (engl. \emph{function
 composition}) ja yleisesti ottaen käsitella kaikilla funktionaalisen kielen keinoilla.
 
-Toiminnon ja suorituksen erottelu johtaa luonnollisesti kysymykseen siitä, mikä saa aikaan
-toimintojen suorittamisen? Haskellin ratkaisu on määritellä ohjelma toiminnoksi nimeltään
-\code{main}, joka on tyyppiä \code{IO ()}, ja jonka suoritus vastaa koko ohjelman suorittamista.
-Koska Haskell-ohjelma on funktionaalisesta semantiikasta johtuen mielivaltainen yhdistelmä
-matalamman tason funktioita ja toimintoja, johtaa \code{main}-toiminnon suoritus myös matalan tason
-toimintojen suorittamiseen silloin, kun \code{main}-toiminnon suoritus sitä vaatii.
+%% Too soon?
+%Toiminnon ja suorituksen erottelu johtaa luonnollisesti kysymykseen siitä, mikä saa aikaan
+%toimintojen suorittamisen? Haskellin ratkaisu on määritellä ohjelma toiminnoksi nimeltään
+%\code{main}, joka on tyyppiä \code{IO ()}, ja jonka suoritus vastaa koko ohjelman suorittamista.
+%Koska Haskell-ohjelma on funktionaalisesta semantiikasta johtuen mielivaltainen yhdistelmä
+%matalamman tason funktioita ja toimintoja, johtaa \code{main}-toiminnon suoritus myös matalan tason
+%toimintojen suorittamiseen silloin, kun \code{main}-toiminnon suoritus sitä vaatii.
 
-%
-\subsection{Toimintojen yhdistäminen}
+\subsection{Toimintojen yhdistäminen} %% eli miten monadityökalut tekee IO:n
 
-Listauksessa~\ref{lst:bind} on ohjelma, joka lukee merkin vakiosyötteestä ja tulostaa sen
-vakiotulosteeseen. Jos listauksen tyyppimääritelmät jättää huomioimatta, on tämänkertainen esimerkki
-validia Haskellia, jonka voi kääntää toimivaksi ohjelmaksi. Ohjelma käyttää toimintoja \code{getChar} ja
-\code{putChar}, joista ensimmäinen on tyypiltään \code{IO Char}, sillä sen suorituksen
-jälkeinen paluuarvo on merkki, ja jäljempi on tyypiltään \code{Char -> IO ()}, sillä se ottaa
-argumentikseen tulostettavan merkin eikä ei palauta mitään arvoa. Haskellissa tyhjiä sulkeita
-käytetään olemattoman arvon merkitsemiseen, ja niiden käyttö on välttämätöntä tässä tapauksessa,
-sillä \code{IO} vaatii tyyppiparametrin.
+% FIXME Tässä olisi oleellista jotenkin kertoa se kuinka >>= / >> luo tietoriippuvuuden,
+%       järjestää toiminnot ja estää kääntäjää optimoimasta niitä pois. Hyvä esimerkki
+%       ja ajatus tarpeen.
 
-\begin{lstlisting}[float,label={lst:bind},caption={Kompositio ja sidosfunktion käyttö}]
-fixme   :: fixme
+\fixme{Voiskohan tää alkaa jotenkin näin} Siirräntä on vaikeaa puhtauden ja laiskuuden takia, sillä
+niiden ei ole takuuta siitä, että siirräntää suoritetaan tai että suoritus tapahtuu oikeassa
+järjestyksessä. Monadit ratkaisevat järjestämiseen liittyvän ongelman luomalla viitekehyksen
+\fixme{mikä ihmeen viitekehys, selitä}, jossa toiminnot nimenomaisesti ketjutetaan toisiinsa.
+
+Listauksessa~\ref{lst:ioprog} on kolme osaa. Kahdella ensimmäisellä rivillä on esimerkkiohjelma,
+joka lukee merkin vakiosyötteestä ja tulostaa sen vakiotulosteeseen. Ohjelma käyttää toimintoja
+\code{getChar}, \code{putChar} ja \code{>>=}, joiden tyypit ovat kirjoitettu auki. Esimerkiksi
+\code{getChar :: IO Char} tarkoittaa toimintoa, joka palauttaa \code{Char}-tyyppisen arvon.
+
+Listauksessa käydään myös esimerkkiohjelman evaluaatio vaihe vaiheelta läpi ohjelman käyttämien
+tyyppien avulla. Evaluaation ensimmäisellä rivillä ohjelma on muutoin muuttumaton, mutta
+\code{(>>=)} funktio on siirretty sisämerkinnästä parametriensa eteen, jotta esimerkkiä olisi
+helpompi seurata myöhemmin.
+
+Toisella rivillä \code{(>>=)} on korvattu tyyppimääritelmällään. Tässä vaiheessa IO-tyyppi on vielä
+polymorfisesssa muodossa, sillä lopullista tyyppiä ei vielä tiedetä. Toisin sanoen merkinnässä
+käytetään yhä \code{a} ja \code{b} -tyyppiparametreja.
+
+Kolmannella rivillä \code{getChar} on korvattu tyypillään ja samalla huomaamme että sen tyyppi sopii
+sidosfunktion ensimmäisen parametrin tyyppiin, jos tyyppiparametri \code{a} saa arvon \code{Char}.
+Tarkennamme tyyppimääritelmiä korvaamalla \code{IO a} -merkinnän tyypillä \code{IO Char}.
+
+Neljännellä rivillä sievennämme lauseketta soveltamalla \code{getChar}-funktion ja poistamme sen
+merkinnöistä. \fixme{Tässä vaiheessa Haskell-ohjelman suoritusta tapahtuu toiminnan suoritus.}
+
+Viidennellä rivillä \code{putChar}-funktio korvataan tyypillään ja voimme jälleen tehdä
+tyyppipäättelyn samalla tavalla kuin kolmannella rivillä. Huomaamme että tyyppiparametrin \code{b}
+tyypiksi sopii \code{()} ja se mahdollistaa \code{putChar}-funktion soveltamisen. Tässä vaiheessa
+alkuperäisestä sidosfunktiosta on jäljellä enää toinen parametri ja paluuarvo. Kuudennellä rivillä
+funktio \code{putChar} on sovellettu sidosfunktioon ja jäljelle jää enää paluuarvon tyyppi \code{IO
+()}.
+
+Siirrännän lisäksi tämä esimerkki kattaa monta yleistä funktionaalisen kielen ominaisuutta, jotka
+ovat syytä mainita selkeyden vuoksi. Ohjelman sieventäminen tyyppien avulla on vastaavanlainen
+operaatio kuin kääntäjän tekemä tyyppipäättely Haskell-ohjelmaa käännettäessä. Esimerkin
+sieventyminen tyypiksi \code{IO ()} ei ole sattuma, sillä se on vaatimus kaikille
+Haskell-ohjelmille, sillä kaikkien omavaraisten Haskell-ohjelmien suoritus alkaa
+\code{main}-funktiosta, jonka tyyppi on \code{IO ()}.
+
+Toinen merkittävä funktionaaliseen kieleen liittyvä havainto on se kuinka ohjelmaa suoritetaan.
+Toisin kuin imperatiivisessa kielissä, ei suoritus koostu toisistaan riippumattomien lauseiden
+ajamisesta. Sen sijaan ohjelma itsessään on kokonainen funktio, joka koostuu pienemmistä
+funktioista. Haskell-ohjelmaa suoritetaan funktioita soveltamalla ja sieventämällä.
+
+
+% käy läpi esimerkki, funktion sovellus, sievennys...
+
+% funktionaalisen kielen juttuja:
+%  [check] hups, vahingossa tyyppitarkistus
+%  ei imperatiivista suorittamista vaan soveltamista, sieventämistä...
+
+% i/o juttuja:
+%  >>= on eksplisiittinen
+%  >>= ketjuttaa tapahtumat
+%  kaikki sitoutuu lopulta pääohjelmaan main
+%  siirräntä tehdään tarvittaessa ja järjestetysti
+
+\subsection{TODO}
+
+
+%  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %
+
+% Listauksessa~\ref{lst:bind} on ohjelma, joka lukee merkin vakiosyötteestä ja tulostaa sen
+% vakiotulosteeseen. Ohjelma käyttää toimintoja \code{getChar} ja
+% \code{putChar}, joista ensimmäinen on tyypiltään \code{IO Char}, sillä sen suorituksen
+% jälkeinen paluuarvo on merkki, ja jäljempi on tyypiltään \code{Char -> IO ()}, sillä se ottaa
+% argumentikseen tulostettavan merkin eikä ei palauta mitään arvoa. Haskellissa tyhjiä sulkeita
+% käytetään olemattoman arvon merkitsemiseen, ja niiden käyttö on välttämätöntä tässä tapauksessa,
+% sillä \code{IO} vaatii tyyppiparametrin.
+
+\begin{lstlisting}[float,label={lst:ioprog},caption={IO-ohjelma ja sen evaluaatio}]
+main :: IO ()
+main = getChar >>= putChar
+
 getChar :: IO Char
 putChar :: Char -> IO ()
 (>>=)   :: IO a -> (a -> IO b) -> IO b
 
-main :: IO ()
-main = getChar >>= putChar
+1. (>>=) getChar putChar
+2. (IO a -> (a -> IO b) -> IO b) getChar putChar
+3. (IO Char -> (Char -> IO b) -> IO b) (IO Char) putChar
+4. ((Char -> IO b) -> IO b) putChar
+5. ((Char -> IO ()) -> IO ()) (Char -> IO ())
+6. IO ()
 \end{lstlisting}
 
 % bind ei ole language construct vaan ihan vaan funktio
+% huomionarvoista että get >>= put on tosi simppeli ohjelmoinjan näkökulmasta
 
 Esimerkin toiminnot ovat yhdistetty \verb|(>>=)| funktiolla, joka luetaan \emph{bind} eli suomeksi
 sidos. Bindia käytetään tavallisesti sisämerkintänä (engl. \emph{infix notation}) eli tässä esimerkissä
@@ -568,8 +653,6 @@ palauttama toiminto, joka vastaavasti tuottaa lopullisen tarvittavan arvon \code
 sanoen bind luo tietoriippuvuuden (engl. \emph{data dependency}) käytettyjen toimintojen välille,
 jolloin laiska evaluaatio ei voi enää suorittaa siirräntätoimintoja mielivaltaisessa järjestyksessä.
 
-\subsection{Monadi}
-
 % TODO Täällä merkataan operaattoreita tekstissä sulkujen sisällä (>>), mutta koodissa ilman. Pitää
 %      ehkä mainita kirjoitusasusta jotain
 
@@ -585,15 +668,15 @@ jolloin laiska evaluaatio ei voi enää suorittaa siirräntätoimintoja mielival
 %toimintoa, joista ensimmäinen ei palauta arvoa, jota toinen toiminto käyttäisi. Then ei ole
 %pakollinen monadin toteuttamiseksi, mutta se on hyödyllinen käytännön ohjelmoinnin näkökulmasta.
 
-Listauksessa~\ref{lst:then} on korjattu versio luvun~\ref{subsec:laiskuus} esimerkistä. Ohjelmaa on
-muutettu niin, että tulostustoiminnot ovat yhdistetty then-funktiolla, joka takaa sen, että
-tulostukset tapahtuvat aiotussa järjestyksessä. Lisäksi tyyppimääritelmä on kirjoitettu näkyviin sen
-korostamiseksi, että kyseinen toiminto tulee suorittaa IO-monadin kontekstissa.
+% Listauksessa~\ref{lst:then} on korjattu versio luvun~\ref{subsec:laiskuus} esimerkistä. Ohjelmaa on
+% muutettu niin, että tulostustoiminnot ovat yhdistetty then-funktiolla, joka takaa sen, että
+% tulostukset tapahtuvat aiotussa järjestyksessä. Lisäksi tyyppimääritelmä on kirjoitettu näkyviin sen
+% korostamiseksi, että kyseinen toiminto tulee suorittaa IO-monadin kontekstissa.
 
-\begin{lstlisting}[float,label={lst:then},caption={Fixme}]
-sanoHeiMaailma :: IO ()
-sanoHeiMaailma = putStr "Hei" >> putStr " maailma"
-\end{lstlisting}
+%\begin{lstlisting}[float,label={lst:then},caption={Fixme}]
+%sanoHeiMaailma :: IO ()
+%sanoHeiMaailma = putStr "Hei" >> putStr " maailma"
+%\end{lstlisting}
 
 \subsection{Imperatiivinen tyyli}
 % Viitteeksi ehkä jotain Wadleria (kuten Comprehending Monads)

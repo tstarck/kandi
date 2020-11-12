@@ -87,7 +87,7 @@
     \renewcommand{\@instructor}{arvostelija}%
     \university{HELSINGIN YLIOPISTO}
     \faculty{Matemaattis-luonnontieteellinen}
-    \department{Tietojenk\"asittelytieteen laitos}
+    \department{Tietojenk\"asittelytieteen osasto}
     \subject{Tietojenk\"asittelytiede}
 }{}
 \iflanguage{swedish}{

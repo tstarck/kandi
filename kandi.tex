@@ -11,7 +11,7 @@
 
 \usepackage{listings}
 \renewcommand{\lstlistingname}{Listaus}
-\lstset{captionpos=b,frame=single,language=Haskell,literate={ä}{{\"a}}1}
+\lstset{basicstyle=\ttfamily,captionpos=b,frame=single,language=Haskell,literate={ä}{{\"a}}1}
 
 \makeatletter
 \AtBeginDocument{\hypersetup{pdftitle = {\@title}, pdfauthor = {\@author}}}
@@ -26,12 +26,12 @@
 \title{Haskell ja monadinen imperatiivisuus}
 \author{Tuomas Starck}
 \date{\today}
-\level{Referaatti}
-\abstract{Referaatti.}
+\level{kandidaatintutkielma}
+\abstract{TODO}
 
-\keywords{haskell}
+\keywords{Haskell, funktionaalinen ohjelmointi, monadit}
 
-% \classification{}
+\classification{D.1.1: Applicative (Functional) Programming}
 
 \begin{document}
 
@@ -60,16 +60,16 @@
 \fixme{Kirjoita oikea johdanto eli mitä teksti käsittelee}
 
 
-\section{Historiaa evt}
+\section{Historiaa}
 
 \fixme{Nää kappaleiden nimet pitää funtsia uusiksi, tämä on joku Haskellin esittely vissiin}
 
 \subsection{Haskell}
 
 Haskell sai alkunsa vuonna 1987 Functional Programming and Computer Architecture -konferenssin
-yhteydessä pidettyssä tapaamisessa, jossa päätettiin suunnitella ja kehittää uusi ohjelmointikieli.
+yhteydessä pidetyssä tapaamisessa, jossa päätettiin suunnitella ja kehittää uusi ohjelmointikieli.
 Ennen Haskellia oli olemassa lukuisia funktionaalisia ohjelmointikieliä, mutta vaihtoehtojen
-ylitarjonta sipraloi funktionaalisen ohjelmoinnin kentän ja hidasti sen edistystä. Kielen
+ylitarjonta sirpaloi funktionaalisen ohjelmoinnin kentän ja hidasti sen edistystä. Kielen
 kehittämistä varten perustettiin komitea, jonka tavoitteena oli luoda yksi yhtenäinen
 funktionaalinen ohjelmointikieli. Komitean yksi ensimmäisistä saavutuksista oli uuden kielen
 nimeäminen Haskelliksi.
@@ -83,7 +83,7 @@ tarpeen. Laiska suoritus mahdollistaa muun muassa äärettömien tietorakenteide
 käsittelyn, sillä Haskellin suoritusympäristö ei pyri evaluoimaan niitä loppuun saakka, joten
 ohjelma ei jää jumiin.
 
-Yleisesti ottaen Haskell-komitean pyrkimys oli käyttää olemassaolevia ja hyvin tunnettuja
+Yleisesti ottaen Haskell-komitean pyrkimys oli käyttää olemassa olevia ja hyvin tunnettuja
 tekniikoita suunnittelutyönsä pohjana. Laiskuudesta oli noin vuosikymmenen verran kokemusta
 Haskellin synnyn aikaan, joten se ei ollut uusi keksintö.
 
@@ -99,7 +99,7 @@ jolloin laiskuuden voi poistaa sellaisesta kohdasta ohjelmaa, jossa se on haitak
 Laiskuuden välitön seuraus on se, että evaluointijärjestys määräytyy tarpeen mukaan, jolloin
 vastaavasti sivuvaikutusten käsittelyä on vaikeaa toteuttaa mielekkäästi. Sivuvaikutuksilla
 tarkoitetaan esimerkiksi siirrännän käsittelyä (engl. \emph{input/output}) tai yleisesti ottaen mitä
-tahansa ulkoista tilanmuutosta~\fixme{parempiselitys!}.
+tahansa ulkoista tilanmuutosta~\fixme{Parempi selitys! Lisää esimerkkejä?}.
 
 Haskell-komitean ratkaisu oli tehdä Haskellista puhdas kieli, jolloin funktioilla ei ole lainkaan
 sivuvaikutuksia. Tässä mielessä Haskellin funktiot ovat paitsi nimeltään niin myös merkitykseltään
@@ -118,7 +118,7 @@ elegantti. Lisäksi se on synnyttänyt paljon tutkimusta monadeista ja tilan kap
 Tyyppiluokkia pidetään nykyisin yhtenä Haskellin tunnusmerkillisimmistä ominaisuuksista. Alunperin
 tyyppiluokat tuotiin osaksi kieltä, koska oli tarve ratkaista yhtäsuuruuden vertaamisen ja
 numeeristen operaatioiden ylikuormitus. Haskell-komitean tavoite oli suunnitella kieli käyttäen
-olemassaolevia ja perusteellisesti tunnettuja menetelmiä, mutta Haskellia edeltäneissä
+olemassa olevia ja perusteellisesti tunnettuja menetelmiä, mutta Haskellia edeltäneissä
 funktionaalisissa kielissä, kuten Mirandassa tai Standard ML:ssä, ei ylikuormitusta oltu ratkaistu
 yhtenäisellä tavalla. Lisäksi aiemmin käytetyissä menetelmissä oli heikkouksia, kuten esimerkiksi
 Mirandan polymorfinen yhtäsuuruusvertailu~\fixme{laajenna?}, joka saattoi johtaa ajonaikaisiin
@@ -137,6 +137,7 @@ Jälkikäteen ajateltuna tyyppiluokkien ottaminen osaksi Haskellia oli onnekas v
 jolla on ollut kauaskantoisia vaikutuksia, sillä tyyppiluokat ovat monikäyttöinen työkalu ja niiden
 avulla voi tehdä paljon muutakin kuin toteuttaa ylikuormituksen. Yksi merkittävä edistysaskel
 Haskellin ja tyyppiluokkien kehitykselle oli ehdotus tyyppimuodostajan parametroimisesta
+\fixme{Onko parametroimisesta sana?}
 tyyppimuuttujan sijaan. Tämä mahdollisti korkeamman asteen polymorfismin (engl. \emph{higher-kinded
 polymorphism}), jonka välitön sovellus oli monadien toteuttaminen.
 
@@ -168,7 +169,7 @@ summa x y = x + y
 %  analyysiin ja evaluointiin.
 
 Haskellin kehityksen alkutaipaleella pohdittiin siirrännän toteuttamista ja siihen liittyviä
-ongelmia. Valmista hyvänä pidettyä ratkaisua ei ollut olemassa, sillä olemassaolevien puhtaiden
+ongelmia. Valmista hyvänä pidettyä ratkaisua ei ollut olemassa, sillä olemassa olevien puhtaiden
 funktionaalisten kielten siirräntää pidettiin epätyydyttävänä tai kielessä oli sallittu
 sivuvaikutukset.
 
@@ -185,9 +186,9 @@ Sivuvaikutusten puute tarkoittaa myös sitä, että Haskell on viitteellisesti l
 \emph{referentially transparent}). Toisin sanoen minkä tahansa Haskellin lausekkeen voi korvata
 kyseisen lausekkeen arvolla ilman, että ohjelman merkitys muuttuu. Käytännössä viitteellinen
 läpinäkyvyys mahdollistaa optimoinnin, jossa kääntäjä pelkistää kaikki toistuvat viitteet yhdeksi.
-Esimerkiksi listauksessa~\ref{lst:kuutio} muuttujan \code{x} arvo pitää selvitää vain kerran, jonka
-jälkeen saadulla \code{x}:n arvolla korvataan jokainen \code{x}:n ilmentymä ja kertolaskut voidaan
-laskea.
+Esimerkiksi listauksessa~\ref{lst:kuutio} muuttujan \code{x} arvo täytyy selvittää vain kerran,
+jonka jälkeen saadulla \code{x}:n arvolla korvataan jokainen \code{x}:n ilmentymä ja kertolaskut
+voidaan laskea.
 
 \begin{lstlisting}[float,label={lst:kuutio},caption={Puhdasta laskentaa}]
 kuutio x = x * x * x
@@ -264,7 +265,7 @@ lueKaksiRivia p0 = ([s1, s2], p2) where
 Funktio \code{lueKaksiRivia} palauttaa arvot \code{s1} ja \code{s2}, jotka edustavat niitä
 merkkijonosyötteitä, joiden lukeminen on ohjelman varsinainen tavoite. Lisäksi ohjelma palauttaa
 tekaistun arvon \code{p2}. Ohjelman toiminta on helpoin päätellä seuraamalla ohjelman suoritusta
-kääteisessä järjestyksessä. Jotta \code{p2}:n arvo saadaan selville, on välttämätöntä suorittaa
+käänteisessä järjestyksessä. Jotta \code{p2}:n arvo saadaan selville, on välttämätöntä suorittaa
 funktio \code{lueRivi p1}. Jotta se voidaan suorittaa, täytyy saada selville arvo \code{p1}, joka
 vuorostaan vaatii funktion \code{lueRivi p0} suorituksen ensin. Tällöin tekaistuilla parametreilla
 on saavutettu se, että funktioilla \code{lueRivi} on muuttujien arvoon liittyvä riippuvuus, jolloin
@@ -289,7 +290,7 @@ ohjaamiseen on semanttisesti ongelmallista.
 
 \subsection{Tavoitteet}
 
-Siirrännä toteuttaminen puhtaassa ja laiskassa kielessä ei ole itsestäänselvä asia, jonka vuoksi
+Siirrännän toteuttaminen puhtaassa ja laiskassa kielessä ei ole itsestäänselvä asia, jonka vuoksi
 jotkut funktionaaliset ohjelmointikielet ovat luopuneet puhtauden vaatimuksesta ja hyväksyneet
 sivuvaikutukset osaksi siirrännän toteutusta. Koska Haskellin suunnittelun kulmakivi alusta alkaen
 on ollut puhtaus ja laiskuus, on ratkaisun siirrännän toteuttamiseksi oltava yhteensopiva niiden
@@ -297,7 +298,7 @@ kanssa.
 
 Ohjelmat yleensä kokonaisuuksia, jotka syntyvät pienemmistä osatekijöistä. Funktionaalisten kielien
 luonnollinen vahvuus on perinteisesti ollut se, että funktioita on helppo koostaa osaksi korkeamman
-asteen funktioita (engl. \emph{function composition}). Haskellin siirrännän ratkaisun olisi tulisi
+asteen funktioita (engl. \emph{higher-order function}). Haskellin siirrännän ratkaisun olisi tulisi
 säilyttää tämä ominaisuus, jotta kielen käytettävyys tai ilmaisuvoima ei heikkene, jos ohjelman
 tarvitsee tehdä siirräntää.
 
@@ -345,7 +346,7 @@ ilmaisemiseen~\cite{cm90,teofp92}.
 \subsection{Kategoria}
 
 Kategoriateoria on abstrakti matemaattinen työkalu, joka mahdollistaa monien matemaattisten
-käsitteiden formalisoinnin. Kategoriateoreettinen lähdestymistapa mahdollistaa erillaisten
+käsitteiden formalisoinnin. Kategoriateoreettinen lähestymistapa mahdollistaa erilaisten
 matemaattisten rakenteiden (kuten esimerkiksi joukkojen, ryhmien tai vektoriavaruuksien) tarkastelun
 rakenteen säilyttävällä tavalla, jolloin kategorian tutkiminen sallii yhteisten piirteiden
 kuvaamisen ja todistamisen.
@@ -381,7 +382,7 @@ Päällisin puolin näyttää siltä, että Haskellin ominaisuudet luovat suoraa
 kategoriateoria sen määrittelee. Tämä ei kuitenkaan pidä paikkaansa, sillä on olemassa rajatapauksia
 erityisesti määrittelemättömien ja tyhjien arvojen kanssa, joissa Haskell ei käyttäydy
 kategoriateorian sääntöjen mukaisesti. Sen sijaan ei ole väärin ajatella, että Haskell on omaksunut
-vaikutteita kategoriateoriasta ja sen seurauksena Haskellin monadit ovat analogisia kategoriateorien
+vaikutteita kategoriateoriasta ja sen seurauksena Haskellin monadit ovat analogisia kategoriateorian
 monadien kanssa.
 
 % The category must satisfy an identity axiom and an associative axiom
@@ -404,7 +405,7 @@ class Applicative m => Monad m where
 
 Monadi on yksi kategoriateorian yleisimmin hyödynnetyistä rakenteista, joka on osoittautunut
 monikäyttöiseksi työkaluksi myös ohjelmointikieliä tarkasteltaessa. Erityisesti funktionaalisten
-kielian tapauksessa monadit sallivat laskennan kuvaamisen riittävän abstraktilla tavalla, jotta ne
+kielien tapauksessa monadit sallivat laskennan kuvaamisen riittävän abstraktilla tavalla, jotta ne
 ovat päätyneet ratkaisemaan lukuisia käyttötapauksia. Pelkästään Haskellin standardikirjasto tarjoaa
 monadeihin tukeutuvia työkaluja paitsi siirrännän niin myös tilan, virheenkäsittelyn ja
 epädeterministisen laskennan tarpeisiin.
@@ -421,13 +422,6 @@ että monadien yhdisteet toimivat assosiatiivisesti ja että metodit säilyttäv
 Haskellin ilmaisuvoima ei riitä siihen, että kääntäjä pystyisi todistamaan jonkun tyypin täyttävän
 monadilait, joten se tehtävä jää ohjelmoijan vastuulle, jos hän tahtoo luoda uuden monadin.
 
-% Tähän voi ehkä palata sitten kun metodit on käsitelty
-%\begin{lstlisting}[float,float,label={lst:laws},caption={Monadilait}]
-%return a >>= f                  =  f a
-%m        >>= return             =  m
-%m        >>= (\x -> f x >>= h)  =  (m >>= f) >>= h
-%\end{lstlisting}
-
 \subsection{Monadin toteutus}
 
 Mitä monadiin kuuluvat funktiot sitten tekevät? Ensimmäinen niistä on $(>>=)$, joka luetaan
@@ -443,9 +437,7 @@ paluuarvoa. Toisin sanoen sitä voi käyttää yhdistämään toimintoja, joiden
 merkitystä. Jos tarkkoja ollaan $(>>)$ ei ole teoriassa pakollinen toimivan monadin toteuttamiseksi,
 mutta käytännön ohjelmoinnin ja koodin selkeyden näkökulmasta se on hyödyllinen.
 
-% return on nimeltään unit kategoriateoriassa
-
-Useissa imperatiivisissä ohjelmointikielissä tunnetaan avainsana \code{return}, jonka tarkoitus on
+Useissa imperatiivisissa ohjelmointikielissä tunnetaan avainsana \code{return}, jonka tarkoitus on
 keskeyttää aliohjelman suoritus ja palauttaa jokin arvo. Haskellissa \code{return} on funktio, joka
 nostaa argumenttinsa monadin kontekstiin. Toisin sanoen \code{return a} evaluoituu monadiseksi
 tyypiksi, joka pitää sisällään arvon \code{a}. Funktion \code{return} nimi on valitettava sillä se
@@ -469,35 +461,8 @@ listauksesta~\ref{lst:jarjestys}? Näemme että ohjelma hyödyntää \code{then}
 mekanismi pitää huolta, että tulostukset ylipäätään tapahtuvat. Ja onko ohjelma yhä puhdas ja
 viitteellisesti läpinäkyvä?
 
-% onko composition takuu järjestyksestä selitetty? no ei oo
-% miten main :: IO () toimii? no koska maailma
-
-%  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %
-
-%  Monads can be thought of as composable computation descriptions.
-%  The essence of monad is thus separation of composition timeline
-%    from the composed computation's execution timeline,
-%    as well as the ability of computation to implicitly carry extra data,
-%    as pertaining to the computation itself, in addition to its one output,
-%    that it will produce when run.
-
-%  Haskellissa oli kätevästi tyyppiluokat valmiina, ja niiden avulla Monad:n luonti helppo
-
-%  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %
 
 \section{Siirrännän toteutus}
-
-% Tähän voisi lisätä monadisen I/O:n hyvät puolet:
-%  composable
-%  easily extensible
-%  efficient
-%  ^ archieved by transformations
-%  extendable to interleaved I/O
-%  extendable to in-place manipulation
-%  only Hindley-Milner required
-
-% We need a way to reconcile being with doing: an expression in a functional
-% language denotes a value, while an I/O command should perform an action.
 
 \subsection{IO-monadi}
 
@@ -519,8 +484,11 @@ tyyppiluokkien avulla ja IO-tyyppi soveltui Hindley--Milner-järjestelmään sel
 
 \subsection{Toiminto ja suoritus}
 
+% We need a way to reconcile being with doing: an expression in a functional
+% language denotes a value, while an I/O command should perform an action.
+
 Funktionaalisessa kielessä lauseke ilmaisee arvoa, kun taas siirräntä on luonteeltaan suorite, joka
-tulisi toteuttaa. Osana siirrännän ratkaisua on Haskellissa erotettu olemassaoleminen ja tekeminen
+tulisi toteuttaa. Osana siirrännän ratkaisua on Haskellissa erotettu olemassa oleminen ja tekeminen
 toisistaan. Tätä jakoa edustaa IO-monadi, joka on toiminto (engl. \emph{action}) ja jonka suoritus
 (engl. \emph{perform}) voi toteuttaa siirräntää ja palauttaa arvon. Jatkossa \emph{toiminto}
 tarkoittaa aina jotain funktiota, joka on \code{IO}-tyyppiä.
@@ -529,7 +497,7 @@ Erottelemalla toiminnon suorittamisesta \code{IO}-tyyppiset funktiot kapseloivat
 että ne ovat yhteensopivat Haskellin puhtaan funktionaalisen paradigman kanssa säilyttäen
 viitteellisen läpinäkyvyyden. Toisin sanoen toiminnot ovat tavallisia funktiota, joita voidaan
 välittää argumenttina, koostaa osaksi korkeamman asteen funktioita (engl. \emph{function
-composition}) ja yleisesti ottaen käsitella kaikilla funktionaalisen kielen keinoilla.
+composition}) ja yleisesti ottaen käsitellä kaikilla funktionaalisen kielen keinoilla.
 
 \subsection{Siirrännän esimerkkiohjelma}
 
@@ -553,7 +521,7 @@ Listauksessa~\ref{lst:ioprog} on kolme osaa. Kahdella ensimmäisellä rivillä o
 joka lukee merkin vakiosyötteestä ja tulostaa sen vakiotulosteeseen. Ohjelma käyttää toimintoja
 \code{getChar}, \code{putChar} ja $(>>=)$, joiden tyypit ovat kirjoitettu näkyviin. \code{getChar}
 on toiminto, joka palauttaa \code{Char}-tyyppisen arvon. Vastaavasti \code{putChar} on toiminto,
-joka ottaa \code{Char} arvon parametrinään ja palauttaa tyhjän IO-toiminnon, jonka tyyppi on
+joka ottaa \code{Char} arvon parametrinaan ja palauttaa tyhjän IO-toiminnon, jonka tyyppi on
 \code{IO ()}. Haskellissa tyhjät sulkeet merkitsevät olematonta arvoa ja niiden käyttö tässä
 yhteydessä on välttämätöntä, sillä IO-tyyppi vaatii tyyppiparametrin.
 
@@ -576,7 +544,7 @@ merkinnöistä. \fixme{Tässä vaiheessa Haskell-ohjelman suoritusta tapahtuu to
 Viidennellä rivillä \code{putChar}-funktio korvataan tyypillään ja voimme jälleen tehdä
 tyyppipäättelyn samalla tavalla kuin kolmannella rivillä. Huomaamme että tyyppiparametrin \code{b}
 tyypiksi sopii \code{()} ja se mahdollistaa \code{putChar}-funktion soveltamisen. Tässä vaiheessa
-alkuperäisestä sidosfunktiosta on jäljellä enää toinen parametri ja paluuarvo. Kuudennellä rivillä
+alkuperäisestä sidosfunktiosta on jäljellä enää toinen parametri ja paluuarvo. Kuudennella rivillä
 funktio \code{putChar} on sovellettu sidosfunktioon ja jäljelle jää enää paluuarvon tyyppi \code{IO
 ()}.
 
@@ -594,19 +562,11 @@ Sen sijaan funktionaalisen kielen ohjelma on itsessään kokonainen funktio, jok
 pienemmistä funktioista. Ohjelman suoritus on sieventämistä, joka tapahtuu funktioita soveltamalla
 ja suoritusjärjestys ohjautuu kielen sievennyssääntöjen mukaisesti.
 
-% --
-
-% i/o juttuja:
-%  >>= on eksplisiittinen
-%  >>= ketjuttaa tapahtumat
-%  kaikki sitoutuu lopulta pääohjelmaan main
-%  siirräntä tehdään tarvittaessa ja järjestetysti
-
 \subsection{Toimintojen yhdistäminen}
 
 Siirräntä ei ole triviaalia puhtaassa ja laiskassa ohjelmointikielessä, sillä kieli itsessään ei
 määrittele missä järjestyksessä siirräntä tulee suorittaa eikä edes sitä, suoritetaanko sitä
-ollenkaan. Itse asiassa päin vastoin Haskellin määritelmä sanoo, ettei kieli ole ehdoton
+ollenkaan. Itse asiassa päin vastoin Haskellin määritelmä sanoo, että kieli on löyhä
 evaluaatiojärjestyksestään (engl. \emph{non-strict evaluation semantics}). Monadit, ja tässä
 tapauksessa erityisesti IO-monadi, ratkaisevat toimintojen suoritusjärjestyksen ongelman siten, että
 monadiset operaatiot liittävät toiminnot yksiselitteisesti osaksi evaluaatiojärjestystä.
@@ -621,20 +581,28 @@ Toinen merkittävä IO-monadin tehtävä on, että se tarjoaa viitekehyksen, jok
 yhdistämisestä Haskell-ohjelmiin verrattain helppoa ja ymmärrettävää. Vaikka siirrännän
 esimerkkiohjelma oli hyvin lyhyt, sen perusteellinen läpikäynti paljasti monisärmäisen rakennelman,
 jonka ymmärtäminen edellyttää kattavan teoreettisen tietopohjan. Siitä huolimatta on
-perusteltavissa, että ilmaisu \verb|getChar >>= putChar| on sekä yksinkertainen että intuitivinen
-merkityksen huomioon ottaen. Toisin sanoen, vaikka Haskellin juuret ovat syvällä kategoriateoriassa,
-ohjelmoijan harteille ei ole sysätty kognitiivista kuormaa muistaa IO-monadin yksityiskohtia
-päivittäisessä ohjelmointityössään.
+perusteltavissa, että ilmaisu
+
+$$ getChar >>= putChar $$
+
+on sekä yksinkertainen että intuitiivinen merkityksen huomioon ottaen. Toisin sanoen, vaikka
+Haskellin juuret ovat syvällä kategoriateoriassa, ohjelmoijan harteille ei ole sysätty kognitiivista
+kuormaa muistaa IO-monadin yksityiskohtia päivittäisessä ohjelmointityössään.
 
 \subsection{Imperatiivinen tyyli}
 % Viitteeksi ehkä jotain Wadleria (kuten Comprehending Monads)
 
-Mutta mitä tarkalleen tarkoittaa IO-monadin tarjoama viitekehys? Imperatiivinen ohjelmointimalli
-soveltuu hyvin siirräntään, sillä imperatiivisen koodin rakenne ja ohjelman semantiikka vastaavat
-toisiaan. Haskelliin on siksi lisätty \verb|do|-merkintätapa (engl. \emph{do-notation}), joka
-mahdollistaa Haskell-ohjelmakoodin kirjoittamisen imperatiiviseen tyyliin, mutta hyödyntäen monadeja
-ja funktionaalista semantiikkaa. Do-merkintätapa on syntaktista sokeria, joten se ei lisää eikä
-vähennä Haskellin kielellistä ilmaisuvoimaa.
+% The essence of monad is thus separation of composition timeline
+%   from the composed computation's execution timeline,
+%   as well as the ability of computation to implicitly carry extra data,
+%   as pertaining to the computation itself, in addition to its one output,
+%   that it will produce when run.
+
+Imperatiivinen ohjelmointimalli soveltuu hyvin siirräntään, sillä imperatiivisen koodin rakenne ja
+ohjelman semantiikka vastaavat toisiaan. Haskelliin on siksi lisätty \verb|do|-merkintätapa (engl.
+\emph{do-notation}), joka mahdollistaa Haskell-ohjelmakoodin kirjoittamisen imperatiiviseen tyyliin,
+mutta hyödyntäen monadeja ja funktionaalista semantiikkaa. Do-merkintätapa on syntaktista sokeria,
+joten se ei lisää eikä vähennä Haskellin kielellistä ilmaisuvoimaa.
 
 Do-merkintätapa lisää Haskelliin avainsanat \code{do} ja \verb|<-|. Avainsana \code{do} aloittaa
 koodilohkon, joka rajataan ympäröivästä ohjelmasta sisentämällä, ja jonka kontekstissa kääntäjä
@@ -665,21 +633,21 @@ main = do
   putStrLn ("Hei " ++ nimi ++ "!")
 \end{lstlisting}
 
-% do näyttää helpolta ja imperatiiviselta
-
 \emph{Do}-notaatio lienee helpoin hahmottaa esimerkin avulla. Listauksessa~\ref{lst:desugared} on
 esimerkkiohjelma, joka kysyy käyttäjän nimeä, lukee syötteen ja tulostaa tervehdyksen. Koska alussa
 tapahtuva tulostus ei palauta merkityksellistä arvoa, käytetään funktiota \code{then} yhdistämään
 toimintoja. Sen sijaan \code{getLine} palauttaa merkkijonon, joten sen paluuarvo passataan eteenpäin
 funktion \code{bind} avulla. Esimerkin viimeisellä rivillä on nimetön funktio, jota kutsutaan myös
 lambdaksi. Se ottaa parametrikseen \code{getLine}-funktiolta tulleen merkkijonon, antaa sille nimen
-\code{nimi} ja tulostaa tekstiä käyttäen saamaansa parametriä.
+\code{nimi} ja tulostaa tekstiä käyttäen saamaansa parametria.
 
 Vaikka sama ohjelma on mahdollista kirjoittaa käyttämättä lambda-ilmaisua, on sen avulla verrattain
 helppo antaa nimi funktion \code{getLine} paluuarvolle. Vastaavasti paluuarvon nimeäminen ei ole
 välttämätöntä, mutta ohjelmoitaessa tulee jatkuvasti vastaan tilanteita, joissa asioiden nimeäminen
 on hyödyllistä, jotta niihin on helppo myöhemmin viitata tai jotta koodi pysyy helpommin luettavana
 ja ymmärrettävänä.
+
+\fixme{Pitäisikö $<-$ nimetä sidosnuoleksi ja käyttää sitä?}
 
 Listauksessa~\ref{lst:donotation} on sama ohjelma, mutta tällä kertaa se on kirjoitettu
 \code{do}-merkintätapaa käyttäen. Do-merkintätavan takia monadisia sidosfunktioita ei tarvitse
@@ -691,23 +659,99 @@ tapaan tallentaa arvo johonkin muuttujan.
 % Huomattavaa kuitenkin on, ettei Haskellin yhteydessä puhuta muuttujista, sillä
 % \code{nimi} ei ole muuttuja, sillä sen arvoa ei voi myöhemmin muuttaa.
 
-Ilman \emph{do}-merkintää paluuarvon nimeäminen oli näennäisesti monimutkaisempi tapahtuma, sillä
-sitä varten piti luoda lambda-ilmaisu. Sen sijaan jäljemmässä esimerkissä toiminto ja sen paluuarvon
-nimeäminen tapahtuvat luontevasti samalla rivillä. Yleisesti ottaen \emph{do}-merkintä tarjoaa
-syntaksin, joka on intuitiivinen ja ennestään tuttu lähes mitä tahansa muita ohjelmointikieliä
-käyttäneille, mutta jonka avulla on helppo hyödyntää Haskellin ja funktionaalisen ohjelmoinnin
-poikkeuksellisia ominaisuuksia: Tyyppipäättely ja -turvallisuus auttavat ohjelmointivirheiden
-havaitsemista. Funktionaalisuuteen kuuluva funktioiden ja toimintojen yhdistäminen toimii. Laiskuus
-ja puhtaus säilyvät käyttökelpoisina.
+Ilman \emph{do}-merkintää paluuarvon nimeäminen vaati selkeästi monimutkaisemman ilmaisun ja vaati
+ylimääräisen anonyymin funktion käyttöä. Sen sijaan jäljemmässä esimerkissä toiminto ja sen
+paluuarvon nimeäminen tapahtuvat luontevasti samalla rivillä. Yleisesti ottaen \emph{do}-merkintä
+tarjoaa syntaksin, joka on intuitiivinen ja ennestään tuttu lähes mitä tahansa muita
+ohjelmointikieliä käyttäneille, mutta jonka avulla on helppo hyödyntää Haskellin ja funktionaalisen
+ohjelmoinnin poikkeuksellisia ominaisuuksia: \fixme{Ei kaksoispistettä, mutta kuinka?}
+Tyyppipäättely ja -turvallisuus auttavat ohjelmointivirheiden havaitsemista. Funktionaalisuuteen
+kuuluva funktioiden ja toimintojen yhdistäminen toimii. Laiskuus ja puhtaus säilyvät
+käyttökelpoisina.
+
+% FIXME Monads can be thought of as composable computation descriptions.
+%       Vielä ei vissiin ole kerrottu tätä "konteksti" asiaa
+
+% i/o juttuja:
+%  kaikki sitoutuu lopulta pääohjelmaan main (ehkä oma subsection)
+%  IO ei paljasta konstruktoria, joten turvallinen (ehkä oma subsection)
+%   -> https://stackoverflow.com/a/19093720
+%  siirräntä tehdään tarvittaessa ja järjestetysti
+
+\subsection{Oikea maailma}
+
+Monadien tarjoama viitekehys auttaa ratkaisemaan laiskuuteen ja laskennan järjestykseen liittyvät
+haasteet, mutta mikä pakottaa Haskell-ohjelman toteuttamaan siirräntää ylipäätään? Siirräntä on
+konseptuaalisesti vaikea asia puhtaalle kielelle, sillä siirräntä on ennen kaikkea sivuvaikutusten
+aiheuttamista ja puhtaus tarkoittaa sivuvaikutusten välttämistä. Ristiriita on ilmeinen. Osa
+vastausta on ollut omaksua ajatus Haskell-ohjelman ulkopuolisesta maailmasta osaksi Haskellin
+semantiikkaa. Toisin sanoen Haskell-kääntäjä tuntee konseptin oikeasta maailmasta. Oikeaa maailmaa
+kutsutaan Haskellin kontekstissa joskus nimellä \emph{RealWorld}, mutta jatkossa esimerkit
+\fixme{esimerkki?} käyttävät nimitystä \emph{World}.
+
+\begin{lstlisting}[float,label={lst:world},caption={IFP, IO-tyyppi}]
+type IO a    = World -> IORes a
+data IORes a = MkIORes a World
+\end{lstlisting}
+
+Ohjelman ulkopuolisen maailman ottaminen huomioon ohjelmointikielen tasolla voi vaikuttaa ylettömän
+korkealentoiselta, mutta tosiasiassa se ratkaisee puhtauteen liittyvät ongelmat.
+Listauksessa~\ref{lst:world} on koodiesimerkki Imperative Functional Programming
+-paperista~\cite{ifp93}, johon Haskellin IO-monadin toteutus pohjautuu. Esimerkin tyyppialiaksen
+sovelmisen ja muun pelkistämisen jälkeen IO-tyypin määritelmä näyttää seuraavalle:
+
+$$ IO\; a = World \arr (a,\; World) $$
+
+Luettuna IO on siis yhdistelmätyyppi ja funktio, jonka parametri on maailma ja arvo on pari, joka
+koostuu toiminnon paluuarvosta ja maailmasta. Käsitteellisesti siis Haskell-ohjelman toiminto ottaa
+syötteekseen koko tunnetun maailman ja palauttaa uuden maailman, jonka tilaa on muutettu kyseisen
+toiminnon verran. Ajatus voi vaikuttaa liioiteltulle, mutta se on yhteensopiva viitteellisen
+läpinäkyvyyden kanssa, joka vastaavasti on puhtauden kulmakivi.
+
+Tietysti koko tunnetun maailman muunnos on laskennallisesti liian mahtipontinen suorite, joten
+\emph{World} on Haskell-kääntäjälle abstrakti tietotyyppi. Tämä tarkoittaa sitä, että toisaalta
+\emph{World} on kääntäjälle todellinen, sillä sitä käytetään lähdekoodissa IO-monadia
+määriteltäessä, mutta toisaalta \emph{World} ei näy Haskell-ohjelmassa ajon aikana eikä se koskaan
+päädy käännettyyn Haskell-ohjelmaan, sillä se optimoituu pois käännösvaiheessa.
+
+\begin{lstlisting}[float,label={lst:bindio},caption={IFP, bindIO:n määritelmä}]
+bindIO m k w = case (m w) of
+  MkIORes a w' -> k a w'
+\end{lstlisting}
+
+Ennen kuin \emph{World} optimoituu pois on sillä konkreettinen tehtävä toimintojen ketjuttamisessa.
+Listauksessa~\ref{lst:bindio} on \code{bindIO}-funktion määritelmä~\cite{ifp93}, joka on käytännössä
+toteutus $(>>=)$ metodille. Funktion argumentit ovat monadiset toiminnot (\code{m} ja \code{k}) sekä
+\emph{World} (\code{w}). Ensimmäinen toiminto suoritetaan yhdessä maailman tilan kanssa ja tulos
+sovitetaan IO-paluuarvoksi \code{a} ja uudeksi maailman tilaksi \code{w'}.
+
+%% !! Composen pitäis tietenkin olla newtype että se katoaa käännösaikana
+
+% seuraavaksi se, että maailma -> maailma' luo säikeen joka pitää kaiken kasassa
+% aiemmin puhuttiin vaan (>>=) :: IO jtn, mutta nyt nähdään että IO kätkee Worldin
 
 
+% IO a = World -> (a, World)
+%
+% getChar :: IO Char
+% putChar :: Char -> IO ()
+% (>>=)   :: IO a -> (a -> IO b) -> IO b
+%
+% (>>=) m k w = case (m w) of
+%                 IORes a ww -> k a ww
+%
+% getChar >>= putChar
+%
+% IO Char >>=
+
+% Provided that the primitive ccall actions are combined only with these combinators, we can
+% guarantee that the ccalls will be linked in a single, linear chain, connected by data dependencies
+% in which each ccall consumes the world state produced by the previous one. In turn this means that
+% the ccall operations can update the real world “in place”.
 
 %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %
 
-\subsection{TODO}
-
-% bind ei ole language construct vaan ihan vaan funktio
-% huomionarvoista että get >>= put on tosi simppeli ohjelmoinjan näkökulmasta
+\subsection{Pääohjelma}
 
 %% Too soon?
 %Toiminnon ja suorituksen erottelu johtaa luonnollisesti kysymykseen siitä, mikä saa aikaan
@@ -768,13 +812,6 @@ ja puhtaus säilyvät käyttökelpoisina.
 %% Jones: Tackling the Awkward Squad
 
 % Ks. listaus 8 ja siellä GHC:n määritelmä Monad'sta. Ei varmaan sovi sinne, mutta ehkä ok täällä
-
-\subsection{Oikea maailma}
-
-% FIXME Tässä olisi oleellista jotenkin kertoa se kuinka >>= / >> luo tietoriippuvuuden,
-%       järjestää toiminnot ja estää kääntäjää optimoimasta niitä pois.
-
-\fixme{Konsepti virtuaalisesta Maailma'sta}
 
 %% % % % % % % % % % % % %%
 %
@@ -852,7 +889,7 @@ ja puhtaus säilyvät käyttökelpoisina.
 % soveltaminen, osien synteesi ja mahdolliset evaluointimenetelmät ja -tulokset pääroolissa.
 
 
-\section{Yhteenveto}
+\section{Yhteenveto ehkä}
 
 % Yleensä hieman johdantoa lyhyempi.
 % Muistuttaa mieleen tutkimuskysymyksen, mainitsee tärkeimmät tulokset ja niiden perusteet.

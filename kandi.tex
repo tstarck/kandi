@@ -574,8 +574,8 @@ monadiset operaatiot liittävät toiminnot yksiselitteisesti osaksi evaluaatioj�
 Edellisessä esimerkkiohjelmassa \code{getChar}-funktio suoritettiin ennen \code{putChar}-funktiota,
 sillä \code{putChar} vaati argumentikseen \code{getChar}-funktion paluuarvon. Suoritus ei olisi
 voinut tapahtua käänteisessä järjestyksessä, sillä näiden kahden toiminnon välillä on
-tietoriippuvuus (engl. \emph{data dependency}), joka luotiin $(>>=)$-metodin avulla.
-Evaluaatiojärjestyksen takaaminen on yksi IO-monadin tärkeistä ominaisuuksista.
+tietoriippuvuus, joka luotiin $(>>=)$-metodin avulla. Evaluaatiojärjestyksen takaaminen on yksi
+IO-monadin tärkeistä ominaisuuksista.
 
 Toinen merkittävä IO-monadin tehtävä on, että se tarjoaa viitekehyksen, joka tekee siirrännän
 yhdistämisestä Haskell-ohjelmiin verrattain helppoa ja ymmärrettävää. Vaikka siirrännän
@@ -680,14 +680,13 @@ käyttökelpoisina.
 
 \subsection{Oikea maailma}
 
-Monadien tarjoama viitekehys auttaa ratkaisemaan laiskuuteen ja laskennan järjestykseen liittyvät
-haasteet, mutta mikä pakottaa Haskell-ohjelman toteuttamaan siirräntää ylipäätään? Siirräntä on
-konseptuaalisesti vaikea asia puhtaalle kielelle, sillä siirräntä on ennen kaikkea sivuvaikutusten
-aiheuttamista ja puhtaus tarkoittaa sivuvaikutusten välttämistä. Ristiriita on ilmeinen. Osa
-vastausta on ollut omaksua ajatus Haskell-ohjelman ulkopuolisesta maailmasta osaksi Haskellin
-semantiikkaa. Toisin sanoen Haskell-kääntäjä tuntee konseptin oikeasta maailmasta. Oikeaa maailmaa
-kutsutaan Haskellin kontekstissa joskus nimellä \emph{RealWorld}, mutta jatkossa esimerkit
-\fixme{esimerkki?} käyttävät nimitystä \emph{World}.
+Aiemmin on mainittu IO-monadin luoma viitekehys ja se, että monadiset operaatiot -- erityisesti
+\code{(>>=)} -- ratkaisevat laiskuuteen ja laskennan järjestykseen liittyvät haasteet. Mutta mikä
+mekanismi tarkalleen ottaen määrää evaluaatiojärjestyksen? Osa vastausta on ollut omaksua ajatus
+Haskell-ohjelman ulkopuolisesta maailmasta osaksi Haskellin semantiikkaa. Toisin sanoen
+Haskell-kääntäjä tuntee konseptin oikeasta maailmasta. Oikeaa maailmaa kutsutaan Haskellin
+kontekstissa joskus nimellä \emph{RealWorld}, mutta jatkossa käytetään typistettyä nimitystä
+\emph{World}.
 
 \begin{lstlisting}[float,label={lst:world},caption={IFP, IO-tyyppi}]
 type IO a    = World -> IORes a
@@ -696,9 +695,9 @@ data IORes a = MkIORes a World
 
 Ohjelman ulkopuolisen maailman ottaminen huomioon ohjelmointikielen tasolla voi vaikuttaa ylettömän
 korkealentoiselta, mutta tosiasiassa se ratkaisee puhtauteen liittyvät ongelmat.
-Listauksessa~\ref{lst:world} on koodiesimerkki Imperative Functional Programming
--paperista~\cite{ifp93}, johon Haskellin IO-monadin toteutus pohjautuu. Esimerkin tyyppialiaksen
-sovelmisen ja muun pelkistämisen jälkeen IO-tyypin määritelmä näyttää seuraavalle:
+Listauksessa~\ref{lst:world} on ote julkaisusta Imperative Functional Programming\cite{ifp93}, johon
+Haskellin IO-monadin toteutus pohjautuu. Määrittelyssä käytetyn tyyppialiaksen sovelmisen jälkeen
+IO-tyypin määritelmä saadan yksinkertaistettua muotoon:
 
 $$ IO\; a = World \arr (a,\; World) $$
 
@@ -706,122 +705,92 @@ Luettuna IO on siis yhdistelmätyyppi ja funktio, jonka parametri on maailma ja 
 koostuu toiminnon paluuarvosta ja maailmasta. Käsitteellisesti siis Haskell-ohjelman toiminto ottaa
 syötteekseen koko tunnetun maailman ja palauttaa uuden maailman, jonka tilaa on muutettu kyseisen
 toiminnon verran. Ajatus voi vaikuttaa liioiteltulle, mutta se on yhteensopiva viitteellisen
-läpinäkyvyyden kanssa, joka vastaavasti on puhtauden kulmakivi.
+läpinäkyvyyden kanssa, joka vastaavasti on kriittinen vaatimus puhtauden säilyttämiseksi.
 
 Tietysti koko tunnetun maailman muunnos on laskennallisesti liian mahtipontinen suorite, joten
 \emph{World} on Haskell-kääntäjälle abstrakti tietotyyppi. Tämä tarkoittaa sitä, että toisaalta
 \emph{World} on kääntäjälle todellinen, sillä sitä käytetään lähdekoodissa IO-monadia
-määriteltäessä, mutta toisaalta \emph{World} ei näy Haskell-ohjelmassa ajon aikana eikä se koskaan
-päädy käännettyyn Haskell-ohjelmaan, sillä se optimoituu pois käännösvaiheessa.
+määriteltäessä, mutta toisaalta \emph{World} ei koskaan päädy käännettyyn Haskell-ohjelmaan eikä se
+näy Haskell-ohjelmassa ajon aikana, sillä se optimoituu pois käännösvaiheessa.
 
 \begin{lstlisting}[float,label={lst:bindio},caption={IFP, bindIO:n määritelmä}]
 bindIO m k w = case (m w) of
   MkIORes a w' -> k a w'
 \end{lstlisting}
 
-Ennen kuin \emph{World} optimoituu pois on sillä konkreettinen tehtävä toimintojen ketjuttamisessa.
-Listauksessa~\ref{lst:bindio} on \code{bindIO}-funktion määritelmä~\cite{ifp93}, joka on käytännössä
-toteutus $(>>=)$ metodille. Funktion argumentit ovat monadiset toiminnot (\code{m} ja \code{k}) sekä
-\emph{World} (\code{w}). Ensimmäinen toiminto suoritetaan yhdessä maailman tilan kanssa ja tulos
-sovitetaan IO-paluuarvoksi \code{a} ja uudeksi maailman tilaksi \code{w'}.
+Ennen kuin kääntäjä poistaa kyseisen abstraktion on sillä konkreettinen tehtävä toimintojen
+ketjuttamisessa. Listauksessa~\ref{lst:bindio} on \code{bindIO}-funktion määritelmä~\cite{ifp93},
+joka on käytännössä toteutus sidosfunktiolle \code{(>>=)}. \code{bindIO}:n argumentit ovat monadiset
+toiminnot (\code{m} ja \code{k}) sekä \emph{World} (\code{w}). Ensimmäinen toiminto suoritetaan
+yhdessä maailman tilan kanssa ja tulos sovitetaan IO-paluuarvoksi \code{a} ja uudeksi maailman
+tilaksi \code{w'}. Sovituksen onnistuessa uusi maailman tila palautetaan muiden paluuarvojen mukana.
 
-%% !! Composen pitäis tietenkin olla newtype että se katoaa käännösaikana
+Kun abstraktia maailman tilaa kuljeteteaan siirräntätoimintojen mukana läpi Haskell-ohjelman,
+saadaan aikaan suoraviivainen linkitetty toimintojen ketju. Tai tarkemmin ilmaistuna \emph{World}
+luo tietoriippuvuuden (engl. \emph{data dependency}) kaikkien ohjelman toimintojen välille jokaisen
+toiminnon sekä kuluttaessa että palauttaessa maailman tilan. Koska ketjun aiemman toiminnon
+paluuarvoa tarvitaan ketjun seuraavan toiminnon toteutukseen, on Haskell-ohjelman välttämätöntä
+evaluoida toiminnot järjestyksessä.
 
-% seuraavaksi se, että maailma -> maailma' luo säikeen joka pitää kaiken kasassa
-% aiemmin puhuttiin vaan (>>=) :: IO jtn, mutta nyt nähdään että IO kätkee Worldin
+Tässä vaiheessa voimme palauttaa mieleen listauksessa~\ref{lst:ratkaisu} olleen esimerkkiohjelman.
+Siinä toimintojen järjestyksen ongelma ratkaistiin luomalla ylimääräiset kokonaislukuparametrit,
+joita välittämällä suoritus pakotettiin toivottuun järjestykseen. IO-monadi ja sen kontekstissa
+käytetty abstrakti tietotyyppi \emph{World} ovat loogisesti sama ratkaisu laiskuuden
+tarjoamaan haasteeseen. Oleellinen ero on, että monadi kätkee ratkaisun toteuksen ohjelman syntaksin
+tasolla ja kääntäjä optimoi sen pois haittaamasta ohjelmen suoritusta.
+
+\subsection{Pääohjelma} %% IFP.2
+
+Monadien tarjoama viitekehys auttaa ratkaisemaan laiskuuteen ja laskennan järjestykseen liittyvät
+haasteet, mutta siirräntä on silti konseptuaalisesti vaikea asia Haskellille. Siirräntä on ennen
+kaikkea sivuvaikutusten aiheuttamista, mutta Haskell on puhdas ja puhtaus tarkoittaa sivuvaikutusten
+välttämistä. Ristiriita on ilmeinen. Mikä siis pakottaa Haskell-ohjelman toteuttamaan siirräntää
+ylipäätään?
+
+% Toiminnon ja suorituksen erottelu johtaa luonnollisesti kysymykseen siitä, mikä saa aikaan
+% toimintojen suorittamisen?
+
+Haskellin ratkaisu on määritellä koko ohjelma toiminnoksi nimeltään \code{main}, jota voidaan kutsua
+pääohjelmaksi ja joka on tyyppiä \code{IO ()}. Toiminnon \code{main} suoritus vastaa koko ohjelman
+suorittamista. Haskell-ohjelma on funktionaalisesta semantiikasta johtuen mielivaltainen joukko
+matalamman tason toimintoja, jotka on ketjutettu monadisilla operaatioilla pääohjelman tyypin takia.
+Toisin sanoen jotta koko ohjelman voi suorittaa, on seurattava toimintojen riippuvuusketjua ja
+evaluoitava ketjun kaikki toiminnot järjestyksessä.
+
+Pääohjelman käsite on yleinen myös imperatiivisissa ohjelmointikielissä, joissa sitä käytetään
+suorituksen lähtöpisteenä. Haskellin \code{main} vastaa intuitiivisesti imperatiivisten kielien
+pääohjelmaa, mutta semanttisesti niillä ei ole yhtäläisyyksiä. Voidaan ajatella että
+funktionaalisuuden takia pääohjelma ei niinkään ole suorituksen alkupiste vaan pikemminkin lopetus,
+sillä Haskell pyrkii evaluoimaan koko ohjelman, jotta lopulta saavutetaan \code{main}-toiminnon
+paluuarvo.
 
 
-% IO a = World -> (a, World)
-%
-% getChar :: IO Char
-% putChar :: Char -> IO ()
-% (>>=)   :: IO a -> (a -> IO b) -> IO b
-%
-% (>>=) m k w = case (m w) of
-%                 IORes a ww -> k a ww
-%
-% getChar >>= putChar
-%
-% IO Char >>=
+% motivaatio / miksi
+% miksi IO: turvallinen, puhtaus
+% lopulta IO on ccall, mutta monadit tuovat sivuvaikutukset funktionaaliseen kieleen
+% IO ei paljasta konstruktoria, joten turvallinen (ehkä oma subsection)
 
-% Provided that the primitive ccall actions are combined only with these combinators, we can
-% guarantee that the ccalls will be linked in a single, linear chain, connected by data dependencies
-% in which each ccall consumes the world state produced by the previous one. In turn this means that
-% the ccall operations can update the real world “in place”.
+\section{Yhteenveto}
+
+\fixme{TODO}
+
+%  Kertausta
+% Kaikki siirräntä Haskellissa on IO-tyyppiä, joten kaikki siirräntä tapahtuu IO-monadin kontekstissa.
+% Kontekstilla tarkoitetaan sitä että monadiset operaatiot yhdistävät jne. /World/ on IO-tyypin
+% rakennelma, joten se on siellä aina läsnä.
+% Monadeilla on saavutettu paljon muutakin kuin siirräntä
+
+% Yleensä hieman johdantoa lyhyempi.
+% Muistuttaa mieleen tutkimuskysymyksen, mainitsee tärkeimmät tulokset ja niiden perusteet.
+%  Keskittyy impaktiin ja esimerkiksi suosituksiin. Ei vain summeeraa luku kerrallaan aikaisempaa
+%  tekstiä.
+
 
 %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %
 
-\subsection{Pääohjelma}
+% Jones: Tackling the Awkward Squad
+% doneIO & seqIO :: monoid  ||  bindIO & unitIO :: monad
 
-%% Too soon?
-%Toiminnon ja suorituksen erottelu johtaa luonnollisesti kysymykseen siitä, mikä saa aikaan
-%toimintojen suorittamisen? Haskellin ratkaisu on määritellä ohjelma toiminnoksi nimeltään
-%\code{main}, joka on tyyppiä \code{IO ()}, ja jonka suoritus vastaa koko ohjelman suorittamista.
-%Koska Haskell-ohjelma on funktionaalisesta semantiikasta johtuen mielivaltainen yhdistelmä
-%matalamman tason funktioita ja toimintoja, johtaa \code{main}-toiminnon suoritus myös matalan tason
-%toimintojen suorittamiseen silloin, kun \code{main}-toiminnon suoritus sitä vaatii.
-
-% Esimerkin toiminnot ovat yhdistetty \verb|(>>=)| funktiolla, joka luetaan \emph{bind} eli suomeksi
-% sidos. Bindia käytetään tavallisesti sisämerkintänä (engl. \emph{infix notation}) eli tässä esimerkissä
-% bind saa argumenteikseen toiminnot \code{getChar} ja \code{putChar}. Bindin toteutus ei ole
-% esimerkissä näkyvillä, mutta tyyppimääritelmä paljastaa oleellisen osan bindin toiminnasta.
-
-% Bind on polymorfinen funktio, jota merkitään tyyppiparametrin pienillä kirjaimilla \code{a} ja
-% \code{b}, jotka voi korvata millä tahansa oikealla tyypillä. Tämän esimerkin tapauksessa
-% Haskell-kääntäjä päättelee, että \code{a} on \code{Char} ja \code{b} on \code{()}, sillä ne
-% vastaavat käytettyjen toimintojen tyyppejä. Lisäksi bindin paluuarvo tyyppipäättelyn jälkeen on
-% \code{IO ()}, joka vastaa \code{main}-toiminnon paluuarvoa, joten ohjelma läpäisee
-% tyyppitarkastuksen.
-
-% Esimerkkiohjelman voi lukea seuraavalla tavalla: \code{getChar} palauttaa toiminnon \code{IO Char},
-% jonka \code{Char}-tyyppinen arvo tarvitaan parametriksi, jotta voidaan toteuttaa \code{putChar}:n
-% palauttama toiminto, joka vastaavasti tuottaa lopullisen tarvittavan arvon \code{IO ()}. Toisin
-% sanoen bind luo tietoriippuvuuden (engl. \emph{data dependency}) käytettyjen toimintojen välille,
-% jolloin laiska evaluaatio ei voi enää suorittaa siirräntätoimintoja mielivaltaisessa järjestyksessä.
-
-% TODO Täällä merkataan operaattoreita tekstissä sulkujen sisällä (>>), mutta koodissa ilman. Pitää
-%      ehkä mainita kirjoitusasusta jotain
-
-%Bind eli \verb|(>>=)| ei ole sattumalta osa Haskellin standardikirjastoa vaan yhdessä
-%\code{return}-funktion kanssa ne täyttävät teoreettiset vaatimukset Haskellin Monad-tyyppiluokan
-%määritelmälle. Lisäksi määritelmään kuuluu myös \emph{then}, joka kirjoitetaan \verb|(>>)|.
-
-%Monissa imperatiivisissa ohjelmointikielissa \code{return} on kielen avainsana, jonka tarkoitus on
-%keskeyttää aliohjelman suoritus. Haskellissa \code{return} on funktio, joka nostaa parametrinsa
-%monadiseen kontekstiin. \fixme{Selitäppä tuo seuraavaksi! Ehkä jokin esimerkki.}
-
-%Then, jonka voi kääntää suomeksi \emph{sitten}, on bindin erikoistapaus, jolla yhdistetään kaksi
-%toimintoa, joista ensimmäinen ei palauta arvoa, jota toinen toiminto käyttäisi. Then ei ole
-%pakollinen monadin toteuttamiseksi, mutta se on hyödyllinen käytännön ohjelmoinnin näkökulmasta.
-
-% Listauksessa~\ref{lst:then} on korjattu versio luvun~\ref{subsec:laiskuus} esimerkistä. Ohjelmaa on
-% muutettu niin, että tulostustoiminnot ovat yhdistetty then-funktiolla, joka takaa sen, että
-% tulostukset tapahtuvat aiotussa järjestyksessä. Lisäksi tyyppimääritelmä on kirjoitettu näkyviin sen
-% korostamiseksi, että kyseinen toiminto tulee suorittaa IO-monadin kontekstissa.
-
-%\begin{lstlisting}[float,label={lst:then},caption={Fixme}]
-%sanoHeiMaailma :: IO ()
-%sanoHeiMaailma = putStr "Hei" >> putStr " maailma"
-%\end{lstlisting}
-
-% Monadit ratkaisevat järjestämiseen liittyvän ongelman luomalla viitekehyksen
-% \fixme{mikä ihmeen viitekehys, selitä}, jossa toiminnot nimenomaisesti ketjutetaan toisiinsa.
-
-
-%% IFP: Implementing monadic I/O
-%% Jones: Tackling the Awkward Squad
-
-% Ks. listaus 8 ja siellä GHC:n määritelmä Monad'sta. Ei varmaan sovi sinne, mutta ehkä ok täällä
-
-%% % % % % % % % % % % % %%
-%
-% Esitellään monadit ///
-% Voisi yrittää aloittaa siitä, että sanoo jotain kategoriateoriasta ///
-%  Tai siitä, miksi on olemassa kategoriateoria ja monadit ///
-% Monadit luovat semantiikkaa eli kontekstia eli ympäristöä ///
-%  Pitää ehkä kertoa, mitä konteksti tai ympäristö tarkoittaa tässä ///
-% Monadilait
-%
 % Monadit ovat semanttinen asia. Haskell ottaa kategoriateorian monadit ja luovat Monadin. Toisin
 % sanoen Haskell mahdollistaa ohjelmoijan määritellä oman laskennallisen ympäristönsä. Eli:
 % "[Moggi(1989)] offers the interpretation of a programming language into one monad, but Haskell
@@ -829,80 +798,10 @@ sovitetaan IO-paluuarvoksi \code{a} ja uudeksi maailman tilaksi \code{w'}.
 % language and inserting it into the language itself. Monad lets Haskell programmers define their
 % own computational universes."
 
-% I/O-operaatioiden kompositio
-%  Siihen tarvitaan monadeja
-%  Viitteellinen läpinäkyvyys säilyy
-%  doneIO & seqIO :: monoid  ||  bindIO & unitIO :: monad
-
 % 4.3 No way out [https://wiki.haskell.org/All_About_Monads]
 % The wonderful feature of a one-way monad is that it can support side-effects in its monadic
 % operations but prevent them from destroying the functional properties of the non-monadic portions
 % of the program.
-
-% FFI ja C-proseduurien kutsuminen
-%  Lopulta (matalalla tasolla) siirräntä toteutetaan kutsumalla C-proseduureja (käyttöjärjestelmä ja
-%  standardikirjastot)
-%  Haskellissa 'ccall'
-%  Koko IO-järjestelmä on toteutettu Haskellilla ccall:n päälle
-
-% Hopkins 2012 (ei julkaisutietoja) ja Moggi 1989:
-%
-% Jos oletetaan ohjelma P, kategoria C, käytetyn kielen (perustyyppien) tyyppimääritelmät
-% kategorian C olioille ja perusoperaatiot kyseisille tyypeille (sopiville morfismeille), on
-% olemassa morfismi, joka vastaa P:tä.
-% Kategorian sisäinen rakenne eli se, mitä morfismeja minkä olioiden välillä on olemassa, vastaa
-% sitä kokoelmaa ohjelmia, jotka ovat kielessä (mitä ohjelmia on ja millaisten tyyppien välillä).
-%
-% C == category
-% A == object in C
-% T =~ functor from C -> C
-% η == natural transformation from Id on C
-% Kleisi triple (T, η, *) as the world where computation can take place
-%
-% Haskell:
-% return     == η  (injects values into computations)
-% bind (>>=) == *
-
-% Keskimmäiset luvut keskittyvät kukin "opettamaan" lukijalle yhden osakysymyksen tai näkökulman
-% käsiteltävään asiaan. Lukujen työnjaon tulisi olla selkeä ja niillä tulee olla selkeä oma
-% rakenteensa, jonka valintaperuste on lukijalle kerrottu.
-
-% Functor, Applicative, Monad:
-% https://hackage.haskell.org/package/base-4.9.1.0/docs/src/GHC.Base.html#Functor #Applicative #Monad
-%
-% newtype IO a = GHC.Types.IO (GHC.Prim.State# GHC.Prim.RealWorld -> (# GHC.Prim.State# GHC.Prim.RealWorld, a #))
-% newtype IO a = IO (State# RealWorld -> (# State# RealWorld, a #))
-% RealWorld token enforces ordering through data dependence.
-
-% Haskellissa IO monadi ///
-%  Haskellin 'main' on tyypiltaan 'IO ()' ///
-% RealWorld on virtuaalinen asia, jota käytetään data-riippuvuuden luontiin ///
-% Kuinka "IO inside" ja IFP-paperi eroaa toisistaan? ///
-% Kuinka RealWorld luodaan ja kadotetaan? ///
-% Kuinka puhtaus säilytetään? ///
-%  Erotellaan being ja doing (oleminen ja tekeminen?) ///
-%  "In our system, the value of the entire program is a single (perhaps large) action, called mainIO,
-%  and the program is executed by performing this action." ///
-% Syntaksi eli 'do' ja '<-'
-
-% \section{Luku n} Viimeistä edellinen luku on varsinaisen kontribuution koti: vertailu,
-% soveltaminen, osien synteesi ja mahdolliset evaluointimenetelmät ja -tulokset pääroolissa.
-
-
-\section{Yhteenveto ehkä}
-
-% Yleensä hieman johdantoa lyhyempi.
-% Muistuttaa mieleen tutkimuskysymyksen, mainitsee tärkeimmät tulokset ja niiden perusteet.
-%  Keskittyy impaktiin ja esimerkiksi suosituksiin. Ei vain summeeraa luku kerrallaan aikaisempaa
-%  tekstiä.
-
-% Monad
-% http://lambda-the-ultimate.org/node/3051
-% https://jeltsch.wordpress.com/2013/02/09/some-interesting-features-of-haskells-type-system
-% * kinds == types of types
-% * type classes: kind *
-% * constructor classes: kind * -> *
-% * multiparameter type classes: e.g. conversion val -> val'
 
 \bibliographystyle{babalpha-lf}
 \bibliography{viitteet}

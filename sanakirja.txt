@@ -5,6 +5,7 @@ eager            -- ahne
 strict           -- tiukka, vaativa, ehdoton
 non-strict       -- löyhä
 expression       -- lauseke
+statement        -- lause, käsky, komento
 denote           -- ilmaista, merkitä, osoittaa, tarkoittaa
 evaluation       -- evaluointi, laskeminen, laskenta
 semantic         -- merkitysopillinen, semanttinen

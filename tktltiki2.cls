@@ -86,7 +86,7 @@
     \renewcommand{\@grade}{arvosana}%
     \renewcommand{\@instructor}{arvostelija}%
     \university{HELSINGIN YLIOPISTO}
-    \faculty{Matemaattis-luonnontieteellinen}
+    \faculty{Matemaattis-luonnontieteellinen tiedekunta}
     \department{Tietojenk\"asittelytieteen osasto}
     \subject{Tietojenk\"asittelytiede}
 }{}

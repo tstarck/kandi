@@ -26,12 +26,22 @@
 \title{Haskell ja monadinen imperatiivisuus}
 \author{Tuomas Starck}
 \date{\today}
-\level{kandidaatintutkielma}
-\abstract{TODO}
+\level{Kandidaatintutkielma}
 
-\keywords{Haskell, funktionaalinen ohjelmointi, monadit}
+\abstract{
+  Haskell on puhdas, laiska ja funktionaalinen ohjelmointikieli, joka tarjoaa vaihtoehtoisen
+  ohjelmointiparadigman valtavirran imperatiivisille ja oliopohjaisille kielille. Siirräntä
+  tarkoittaa tietokoneohjelman vuorovaikutusta ympäristönsä kanssa.
 
-\classification{D.1.1: Applicative (Functional) Programming}
+  Tutkielma esittelee puhtauteen ja siirräntään liittyviä ongelmia ja tarkastelee kuinka Haskell
+  mahdollistaa siirrännän ohjelmoinnin hyödyntäen kategoriateorista lainattua monadien konseptia.
+  Teoreettisen viitekehyksen lisäksi tutkielma selittää kuinka Haskellin IO-monadi toimii ja kuinka
+  sen avulla on helppoa toteuttaa siirräntää.
+}
+
+\classification{Software and its engineering \rightarrow Software notations and tools \rightarrow General programming languages \rightarrow Language types \rightarrow Functional languages}
+
+\keywords{Haskell, siirräntä, funktionaalinen ohjelmointi, monadit}
 
 \begin{document}
 
@@ -53,18 +63,49 @@
 
 % Jäsennelty asianmukaisesti (kenelle, miksi, millaisessa ympäristössä; ratkaisun lähestymistapa;
 %  tutkimuskysymys, tulokset ja impakti; loppulukujen roolitus), pituus 1,5 - 2 s.
-% Esim:
-% 1.1 Peliteoria ja pelipuu
-% 1.2 Minimax ja heuristiikka
+% Miksi funktionaalisuus: John Hughes, Why Functional Programming Matters{why90}
 
-\fixme{Kirjoita oikea johdanto eli mitä teksti käsittelee}
+Hyvälle tietokoneohjelmalle on monia vaatimuksia kuten esimerkiksi ohjelman oikeellisuus,
+soveltuvuus käyttötapaukseensa, tehokkuus ja mahdollisuus ymmärtää ja laajentaa ohjelmaa.
+Vastaavasti hyvän ohjelmointikielen tulisi tukea ohjelmoijan päämääärää hyvän ohjelman luomisessa.
+Tietojenkäsittelyn historian aikana on kehitetty useita ohjelmointikieliä, joista nykyisin
+yleisimmin käytössä olevat hyödyntävät imperatiivista ohjelmointiparadigmaa. Tämä tutkielma
+tarkastelee ohjelmointikieltä \emph{Haskell}, joka ei ole imperatiivinen kieli vaan kuuluu
+funktionaalisten kielien joukkoon.
+
+Imperatiivisen paradigman ohjelma mallintuu pelkistetyssä tarkastelussa suoraan matalan tason
+konekäskyiksi, joten siinä mielessä se on johdonmukainen tapa lähestyä ohjelmointia. Laskenta
+mikroprosessorin avulla tapahtuu siten, että prosessorin ja muistin tila muuttuu konekäskyjä
+suoritettaessa ja vastaavasti imperatiivisen ohjelman käskyjen suoritus muuttaa ohjelman tilaa.
+Funktionaalisen paradigman kielet sen sijaan muodostuvat lausekkeista ja laskenta tarkoittaa
+kyseisten lausekkeiden sieventämistä.
+
+Siirräntä (engl. \emph{input/output}) tarkoittaa tietokoneohjelman vuorovaikutusta ympäristönsä
+kanssa. Haskell on paitsi funktionaalinen niin myös puhdas ja laiska kieli. Puhtauden määritelmään
+kuuluu että ohjelma ei saa vuorovaikuttaa ympäristönsä kanssa eli ohjelmalla ei tule olla
+sivuvaikutuksia. Koska sivuvaikutukset määritelmällisesti karkaavat ohjelman semantiikan
+ulkopuolelle, ne saattavat sekä tehdä ohjelman ymmärtämisen vaikeaksi että vaikeuttavat ohjelman
+oikeellisuuden päättelyä.
+
+Toisaalta tietokoneohjelma on hyödyllinen vain mikäli se voi ottaa vastaan syötettä ja ilmaista
+laskennan tuloksen jollain tavalla. Toisin sanoen siirräntä on välttämätön ominaisuus hyvälle
+ohjelmalle eikä mikään vakavasti otettava ohjelmointikieli voi olla huomioimatta tätä tarvetta. Myös
+Haskellin oli ratkaistava tämä ilmeinen ristiriita.
+
+Tämä tutkielma perehtyy Haskellin valintaan lainata kategoriateorian monadia teoreettiseksi malliksi
+sille, kuinka siirräntä on eristetty kielen semantiikan puitteissa omaan kontekstiinsa ja
+funktionaalisuuden toivotut ominaisuudet on säilytetty käyttökelpoisina. Tutkielma tarkastelee myös
+kuinka siirrännän totettaminen on mahdollistettu ja tehty helpoksi Haskellin kielen ominaisuuksien
+avulla. Mutta aluksi tutkielma luo lyhyen katsauksen Haskellin syntyyn, jotta tekniset ongelmat
+saavat myös historiallisen kontekstin.
+
+% luonteeltaan arvaamattomia ja ohjelman toiminnasta on helpompi vetää johtopäätöksiä ilman
+% treats programs as evaluating mathematical functions and avoids state and mutable data
 
 
-\section{Historiaa}
+\section{Haskell} %% {hoh07}
 
-\fixme{Nää kappaleiden nimet pitää funtsia uusiksi, tämä on joku Haskellin esittely vissiin}
-
-\subsection{Haskell}
+\subsection{Historia}
 
 Haskell sai alkunsa vuonna 1987 Functional Programming and Computer Architecture -konferenssin
 yhteydessä pidetyssä tapaamisessa, jossa päätettiin suunnitella ja kehittää uusi ohjelmointikieli.
@@ -96,10 +137,17 @@ jolloin laiskuuden voi poistaa sellaisesta kohdasta ohjelmaa, jossa se on haitak
 
 \subsection{Puhtaus}
 
+% FIXME siirräntä määritelty kahdesti?
+%       lisää esimerkkejä ehkä?
+
+% syöte, tuloste
+% jaetun muistin luku, kirjoitus
+% verkko...
+
 Laiskuuden välitön seuraus on se, että evaluointijärjestys määräytyy tarpeen mukaan, jolloin
 vastaavasti sivuvaikutusten käsittelyä on vaikeaa toteuttaa mielekkäästi. Sivuvaikutuksilla
-tarkoitetaan esimerkiksi siirrännän käsittelyä (engl. \emph{input/output}) tai yleisesti ottaen mitä
-tahansa ulkoista tilanmuutosta~\fixme{Parempi selitys! Lisää esimerkkejä?}.
+tarkoitetaan esimerkiksi siirrännän käsittelyä tai yleisesti ottaen mitä tahansa ulkoista
+tilanmuutosta.
 
 Haskell-komitean ratkaisu oli tehdä Haskellista puhdas kieli, jolloin funktioilla ei ole lainkaan
 sivuvaikutuksia. Tässä mielessä Haskellin funktiot ovat paitsi nimeltään niin myös merkitykseltään
@@ -142,6 +190,8 @@ tyyppimuuttujan sijaan. Tämä mahdollisti korkeamman asteen polymorfismin (engl
 polymorphism}), jonka välitön sovellus oli monadien toteuttaminen.
 
 \subsection{Syntaksi}
+
+%% FIXME Onko tää yhtään enää oikein muun tekstin kontekstissa!?
 
 Koodiesimerkkejä käytetään ongelmien ja ratkaisujen havainnollistamiseen. Esimerkit seuraavat
 syntaksiltaan Haskellia silloinkin, kun ne ovat pseudokoodia, joka ei käänny Haskell-ohjelmaksi.

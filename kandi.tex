@@ -39,9 +39,10 @@ Teoreettisen viitekehyksen lisäksi tutkielma selittää kuinka Haskellin IO-mon
 sen avulla on helppoa toteuttaa siirräntää.
 }
 
-\classification{\protext{ \\
+\classification{ \\
 Software and its engineering $\rightarrow$ Software notations and tools $\rightarrow$ General
-programming languages $\rightarrow$ Language types $\rightarrow$ Functional languages}}
+programming languages $\rightarrow$ Language types $\rightarrow$ Functional languages
+}
 
 \keywords{Haskell, siirräntä, funktionaalinen ohjelmointi, monadit}
 
@@ -787,9 +788,10 @@ evaluoida toiminnot järjestyksessä.
 Tässä vaiheessa voimme palauttaa mieleen listauksessa~\ref{lst:ratkaisu} olleen esimerkkiohjelman.
 Siinä toimintojen järjestyksen ongelma ratkaistiin luomalla ylimääräiset kokonaislukuparametrit,
 joita välittämällä suoritus pakotettiin toivottuun järjestykseen. IO-monadi ja sen kontekstissa
-käytetty abstrakti tietotyyppi \emph{World} ovat loogisesti sama ratkaisu laiskuuden
-tarjoamaan haasteeseen. Oleellinen ero on, että monadi kätkee ratkaisun toteuksen ohjelman syntaksin
-tasolla ja kääntäjä optimoi sen pois haittaamasta ohjelmen suoritusta.
+käytetty abstrakti tietotyyppi \emph{World} ovat loogisesti sama ratkaisu laiskuuden tarjoamaan
+haasteeseen. Oleellinen ero on, että monadi kätkee toteuksen siten, ettei se kuormita ohjelman
+syntaksia. Lisäksi kääntäjän on mahdollista optimoida abstrakti tietoriippuvuus pois hidastamasta
+ohjelmen suoritusta.
 
 \subsection{Pääohjelma} %% IFP.2
 
@@ -799,32 +801,63 @@ kaikkea sivuvaikutusten aiheuttamista, mutta Haskell on puhdas ja puhtaus tarkoi
 välttämistä. Ristiriita on ilmeinen. Mikä siis pakottaa Haskell-ohjelman toteuttamaan siirräntää
 ylipäätään?
 
-% Toiminnon ja suorituksen erottelu johtaa luonnollisesti kysymykseen siitä, mikä saa aikaan
-% toimintojen suorittamisen?
-
 Haskellin ratkaisu on määritellä koko ohjelma toiminnoksi nimeltään \code{main}, jota voidaan kutsua
-pääohjelmaksi ja joka on tyyppiä \code{IO ()}. Toiminnon \code{main} suoritus vastaa koko ohjelman
+pääohjelmaksi. Pääohjelman tyyppi on \code{IO ()} ja sen suoritus vastaa koko ohjelman
 suorittamista. Haskell-ohjelma on funktionaalisesta semantiikasta johtuen mielivaltainen joukko
-matalamman tason toimintoja, jotka on ketjutettu monadisilla operaatioilla pääohjelman tyypin takia.
-Toisin sanoen jotta koko ohjelman voi suorittaa, on seurattava toimintojen riippuvuusketjua ja
-evaluoitava ketjun kaikki toiminnot järjestyksessä.
+matalamman tason toimintoja, jotka ovat ketjutettu yhteen monadisilla operaatioilla pääohjelman
+tyypin takia. Toisin sanoen jotta koko ohjelman voi suorittaa, on seurattava toimintojen
+riippuvuusketjua ja evaluoitava järjestyksessä ketjun kaikki toiminnot.
+
+Siirrännän tyyppiturvallisuus on taattu pääohjelman tyyppimäärittelyllä ja sillä, ettei Haskell
+salli suoraa pääsyä IO-tyypin parametriin eli siirränään paluuarvoon. Toisin sanoen pääohjelma
+määrää koko ohjelman arvon IO-tyyppiseksi ja kaikki pääohjelmalle alisteiset toiminnot joutuvat
+käsittelemään siirrännän paluuarvoja IO-monadin kontekstissa, sillä monadista pakenemiselle ei ole
+tarjolla helppoa mekanismia.
 
 Pääohjelman käsite on yleinen myös imperatiivisissa ohjelmointikielissä, joissa sitä käytetään
 suorituksen lähtöpisteenä. Haskellin \code{main} vastaa intuitiivisesti imperatiivisten kielien
-pääohjelmaa, mutta semanttisesti niillä ei ole yhtäläisyyksiä. Voidaan ajatella että
-funktionaalisuuden takia pääohjelma ei niinkään ole suorituksen alkupiste vaan pikemminkin lopetus,
-sillä Haskell pyrkii evaluoimaan koko ohjelman, jotta lopulta saavutetaan \code{main}-toiminnon
-paluuarvo.
+pääohjelmaa, mutta tarkemmin tarkasteltuna ero on merkittävä. Voidaan ajatella että
+funktionaalisuuden takia pääohjelma ei niinkään ole suorituksen alkupiste vaan pikemminkin
+evaluaation loppupiste, sillä Haskell-ohjelman sieventää itseään kunnes lopulta saavutetaan
+\code{main}-toiminnon paluuarvo.
 
-
-% motivaatio / miksi
-% miksi IO: turvallinen, puhtaus
-% lopulta IO on ccall, mutta monadit tuovat sivuvaikutukset funktionaaliseen kieleen
-% IO ei paljasta konstruktoria, joten turvallinen (ehkä oma subsection)
 
 \section{Yhteenveto}
 
-\fixme{TODO}
+Kun Haskell sai alkunsa 80- ja 90-lukujen vaihteen aikaan, ei ollut olemassa valmista mallia sille,
+kuinka sovittaa siirräntä yhteen funktionaalisen, puhtaan ja laiskan ohjelmointikielen kanssa.
+Toimiva, tehokas ja helppokäyttöinen malli siirrännälle on kuitenkin kriittinen vaatimus mille
+tahansa vakavasti otettavalle ja yleiskäyttöiselle ohjelmointikielelle.
+
+% nyt pitää jossain mainita, että oli muutama eri vaihtoetho ennen kuin monadit
+
+Siirrännän toteutukselle oli tarjolla muutama eri vaihtoehto, joista kategoriateorian monadeista
+inspiraationsa saanut malli valikoitui voittajaksi. Nykyisin Haskellin siirrännän toteutus hyödyntää
+monadien tarjoamaa abstraktiota, jotta puhtauden ja siirrännän ristiriita voidaan ratkaista
+jakamalla siirräntä toimintoihin ja niiden suoritukseen.
+
+%Toiminnot sopivat Haskelliin sillä ne voidaan tyypittää, tyyppitarkastaa ja ketjuttaa samalla
+%tavalla kuin mitkä tahansa muut funktiot.
+
+IO-monadin toteuttaminen osaksi Haskellia oli verrattain vaivatonta, sillä tyyppiluokat olivat jo
+aiemmin yksi Haskellin ominaisuuksista, ja monadit ovat helposti toteutettavissa tyyppiluokkien
+avulla. Haskelliin on myös lisätty \verb|do|-merkintätapa, joka mahdollistaa monille ohjelmoijille
+tutun imperatiivisen tyylin käyttämisen siirrännän ohjelmoimiseen monadien avulla.
+
+Siirrännän toteutus monadien avulla ei ole ristiriidassa kielen muiden ominaisuuksien kanssa, joten
+esimerkiksi puhtaus ja laiskuus säilyvät Haskellille leimallisina ominaisuuksina. Monadit ovat myös
+yhteensopivat käytössä olevan tyyppijärjestelmän kanssa, joten kääntäjän on helppo taata ohjelmien
+tyyppiturvallisuus. Monadinen siirräntä on on myös suorituskykyinen ratkaisu, sillä toimintojen
+ketjuttamiseen tarvittavat abstraktiot voidaan poistaa käännösaikana, joka mahdollistaa kääntäjän
+tuottaa tehokasta konekieltä.
+
+Siirrännän lisäksi monadit ovat otettu Haskellissa käyttöön monissa muissakin sovelluksissa, joissa
+puhtaus ja laiskuus ovat näennäisesti ristiriidassa kaivatun käyttötapauksen kanssa. Esimerkiksi
+\code{State}-monadi sallii tilatiedon ylläpitämisen, joka ei tavallisesti olisi mahdollista
+puhtauden takia. Näin ollen siirrännän ratkaiseminen, joka oli eräs merkittävistä haasteista
+Haskellin kehityksen alkuaikona, on vaikuttanut merkittävällä tavalla kielen kehitykseen myös
+myöhempinä vuosina.
+
 
 %  Kertausta
 % Kaikki siirräntä Haskellissa on IO-tyyppiä, joten kaikki siirräntä tapahtuu IO-monadin kontekstissa.

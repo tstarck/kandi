@@ -63,25 +63,25 @@ programming languages $\rightarrow$ Language types $\rightarrow$ Functional lang
 
 \section{Johdanto}
 
-Hyvälle tietokoneohjelmalle on monia vaatimuksia kuten esimerkiksi ohjelman oikeellisuus,
-soveltuvuus käyttötapaukseensa, tehokkuus ja ohjelmoijan mahdollisuudet ymmärtää ja laajentaa ohjelmaa.
-Vastaavasti hyvän ohjelmointikielen tulisi tukea ohjelmoijan päämäärää hyvän ohjelman luomisessa.
-Tietojenkäsittelyn historian aikana on kehitetty useita ohjelmointikieliä, joista nykyisin
-yleisimmin käytössä olevat hyödyntävät imperatiivista ohjelmointiparadigmaa. Tämä tutkielma
-tarkastelee ohjelmointikieltä \emph{Haskell}, joka ei ole imperatiivinen kieli vaan kuuluu
+Hyvälle tietokoneohjelmalle on monia vaatimuksia, kuten esimerkiksi ohjelman oikeellisuus,
+soveltuvuus käyttötapaukseensa, tehokkuus ja ohjelmoijan mahdollisuudet ymmärtää ja laajentaa
+ohjelmaa. Vastaavasti hyvän ohjelmointikielen tulisi tukea ohjelmoijan päämäärää hyvän ohjelman
+luomisessa. Tietojenkäsittelyn historian aikana on kehitetty useita ohjelmointikieliä, joista
+nykyisin yleisimmin käytössä olevat hyödyntävät imperatiivista ohjelmointiparadigmaa. Tämä tutkielma
+tarkastelee ohjelmointikieltä \emph{Haskell}, joka ei ole imperatiivinen kieli, vaan kuuluu
 funktionaalisten kielien joukkoon.
 
 Imperatiivisen paradigman ohjelma mallintuu pelkistetyssä tarkastelussa suoraan matalan tason
 konekäskyiksi, joten siinä mielessä se on johdonmukainen tapa lähestyä ohjelmointia. Laskenta
 mikroprosessorin avulla tapahtuu siten, että prosessorin ja muistin tila muuttuvat konekäskyjä
-suoritettaessa ja vastaavasti imperatiivisen ohjelman käskyjen suoritus muuttaa ohjelman tilaa. Sen
+suoritettaessa, ja vastaavasti imperatiivisen ohjelman käskyjen suoritus muuttaa ohjelman tilaa. Sen
 sijaan funktionaalisen paradigman kielissä laskenta tarkoittaa ohjelman lausekkeiden sieventämistä.
 Funktionaalisten kielten vahvuuksiin kuuluu vahva modulaarisuus, sillä ohjelma koostuu funktioista,
 joita on mahdollista yhdistellä mielivaltaisesti~\cite{why90}.
 
 Siirräntä (engl. \emph{input/output}) tarkoittaa tietokoneohjelman vuorovaikutusta ympäristönsä
-kanssa. Haskell on paitsi funktionaalinen niin myös puhdas ja laiska kieli~\cite{rep92}. Puhtauden
-määritelmään kuuluu että ohjelma ei saa vuorovaikuttaa ympäristönsä kanssa eli ohjelmalla ei tule
+kanssa. Haskell on paitsi funktionaalinen myös puhdas ja laiska kieli~\cite{rep92}. Puhtauden
+määritelmään kuuluu, että ohjelma ei saa vuorovaikuttaa ympäristönsä kanssa eli ohjelmalla ei tule
 olla sivuvaikutuksia. Koska sivuvaikutukset määritelmällisesti karkaavat ohjelman semantiikan
 ulkopuolelle saattavat ne sekä tehdä ohjelman ymmärtämisen vaikeaksi että vaikeuttaa ohjelman
 oikeellisuuden päättelyä.
@@ -96,7 +96,7 @@ sille, kuinka siirräntä on eristetty kielen semantiikan puitteissa omaan konte
 funktionaalisuuden toivotut ominaisuudet on säilytetty käyttökelpoisina~\cite{ifp93}. Tutkielma
 tarkastelee myös kuinka siirrännän totettaminen on mahdollistettu ja tehty helpoksi Haskellin kielen
 ominaisuuksien avulla. Mutta aluksi tutkielma luo lyhyen katsauksen Haskellin syntyyn, jotta
-tekniset ongelmat saavat myös historiallisen kontekstin.
+tekniset haasteet saavat historiallisen kontekstin.
 
 
 \section{Haskell}
@@ -153,11 +153,11 @@ ja tilan kapseloinnista.
 
 Tyyppiluokkia pidetään nykyisin yhtenä Haskellin tunnusmerkillisimmistä ominaisuuksista. Alunperin
 tyyppiluokat tuotiin osaksi kieltä, koska oli tarve ratkaista yhtäsuuruuden vertaamisen ja
-numeeristen operaatioiden ylikuormitus~\cite{hoh07}. Haskell-komitean tavoite oli suunnitella kieli
-käyttäen olemassa olevia ja perusteellisesti tunnettuja menetelmiä, mutta Haskellia edeltäneissä
+numeeristen operaatioiden ylikuormitus. Haskell-komitean tavoite oli suunnitella kieli käyttäen
+olemassa olevia ja perusteellisesti tunnettuja menetelmiä, mutta Haskellia edeltäneissä
 funktionaalisissa kielissä, kuten Mirandassa tai Standard ML:ssä, ei ylikuormitusta oltu ratkaistu
-yhtenäisellä tavalla. Lisäksi aiemmin käytetyissä menetelmissä oli tunnettuja heikkouksia, jotka
-saattoivat johtaa ajonaikaisiin virhetilanteisiin.
+yhtenäisellä tavalla~\cite{tcih96}. Lisäksi aiemmin käytetyissä menetelmissä oli tunnettuja
+heikkouksia, jotka saattoivat johtaa ajonaikaisiin virhetilanteisiin.
 
 Tyyppiluokat mahdollistavat nimensä mukaisesti tyyppien luokittelun sen perusteella, mitä
 ylikuormitettuja operaatioita ne tukevat. Esimerkiksi Haskellissa luokkaan \code{Eq} kuuluvalle
@@ -767,15 +767,11 @@ kuinka sovittaa siirräntä yhteen funktionaalisen, puhtaan ja laiskan ohjelmoin
 Toimiva, tehokas ja helppokäyttöinen malli siirrännälle on kuitenkin kriittinen vaatimus mille
 tahansa vakavasti otettavalle ja yleiskäyttöiselle ohjelmointikielelle.
 
-% nyt pitää jossain mainita, että oli muutama eri vaihtoetho ennen kuin monadit
-
 Siirrännän toteutukselle oli tarjolla muutama eri vaihtoehto, joista kategoriateorian monadeista
 inspiraationsa saanut malli valikoitui voittajaksi. Nykyisin Haskellin siirrännän toteutus hyödyntää
 monadien tarjoamaa abstraktiota, jotta puhtauden ja siirrännän ristiriita voidaan ratkaista
-jakamalla siirräntä toimintoihin ja niiden suoritukseen.
-
-%Toiminnot sopivat Haskelliin sillä ne voidaan tyypittää, tyyppitarkastaa ja ketjuttaa samalla
-%tavalla kuin mitkä tahansa muut funktiot.
+jakamalla siirräntä toimintoihin ja niiden suoritukseen. Toiminnot soveltuvat kieleen hyvin, sillä
+tyyppitarkastus ja yhdistäminen toimii niille samalla tavalla kuin mille tahansa muulle funktiolle.
 
 IO-monadin toteuttaminen osaksi Haskellia oli verrattain vaivatonta, sillä tyyppiluokat olivat jo
 aiemmin yksi Haskellin ominaisuuksista, ja monadit ovat helposti toteutettavissa tyyppiluokkien
@@ -785,46 +781,16 @@ tutun imperatiivisen tyylin käyttämisen siirrännän ohjelmoimiseen monadien a
 Siirrännän toteutus monadien avulla ei ole ristiriidassa kielen muiden ominaisuuksien kanssa, joten
 esimerkiksi puhtaus ja laiskuus säilyvät Haskellille leimallisina ominaisuuksina. Monadit ovat myös
 yhteensopivat käytössä olevan tyyppijärjestelmän kanssa, joten kääntäjän on helppo taata ohjelmien
-tyyppiturvallisuus. Monadinen siirräntä on on myös suorituskykyinen ratkaisu, sillä toimintojen
-ketjuttamiseen tarvittavat abstraktiot voidaan poistaa käännösaikana, joka mahdollistaa kääntäjän
-tuottaa tehokasta konekieltä.
+tyyppiturvallisuus. Monadinen siirräntä on myös suorituskykyinen ratkaisu, sillä toimintojen
+ketjuttamiseen tarvittavat abstraktiot voidaan poistaa käännösaikana, mikä mahdollistaa kääntäjälle
+tehokkaan konekielen tuottamisen.
 
-Siirrännän lisäksi monadit ovat otettu Haskellissa käyttöön monissa muissakin sovelluksissa, joissa
+Siirrännän lisäksi monadit on otettu Haskellissa käyttöön monissa muissakin sovelluksissa, joissa
 puhtaus ja laiskuus ovat näennäisesti ristiriidassa kaivatun käyttötapauksen kanssa. Esimerkiksi
 \code{State}-monadi sallii tilatiedon ylläpitämisen, joka ei tavallisesti olisi mahdollista
 puhtauden takia. Näin ollen siirrännän ratkaiseminen, joka oli eräs merkittävistä haasteista
 Haskellin kehityksen alkuaikona, on vaikuttanut merkittävällä tavalla kielen kehitykseen myös
 myöhempinä vuosina.
-
-
-%  Kertausta
-% Kaikki siirräntä Haskellissa on IO-tyyppiä, joten kaikki siirräntä tapahtuu IO-monadin kontekstissa.
-% Kontekstilla tarkoitetaan sitä että monadiset operaatiot yhdistävät jne. /World/ on IO-tyypin
-% rakennelma, joten se on siellä aina läsnä.
-% Monadeilla on saavutettu paljon muutakin kuin siirräntä
-
-% Yleensä hieman johdantoa lyhyempi.
-% Muistuttaa mieleen tutkimuskysymyksen, mainitsee tärkeimmät tulokset ja niiden perusteet.
-%  Keskittyy impaktiin ja esimerkiksi suosituksiin. Ei vain summeeraa luku kerrallaan aikaisempaa
-%  tekstiä.
-
-
-%  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %  %%  %
-
-% Jones: Tackling the Awkward Squad
-% doneIO & seqIO :: monoid  ||  bindIO & unitIO :: monad
-
-% Monadit ovat semanttinen asia. Haskell ottaa kategoriateorian monadit ja luovat Monadin. Toisin
-% sanoen Haskell mahdollistaa ohjelmoijan määritellä oman laskennallisen ympäristönsä. Eli:
-% "[Moggi(1989)] offers the interpretation of a programming language into one monad, but Haskell
-% reifies monads with Monad. Reification is taking a concept used to describe the semantics of a
-% language and inserting it into the language itself. Monad lets Haskell programmers define their
-% own computational universes."
-
-% 4.3 No way out [https://wiki.haskell.org/All_About_Monads]
-% The wonderful feature of a one-way monad is that it can support side-effects in its monadic
-% operations but prevent them from destroying the functional properties of the non-monadic portions
-% of the program.
 
 \bibliographystyle{babalpha-lf}
 \bibliography{viitteet}

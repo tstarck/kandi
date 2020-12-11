@@ -1,0 +1,33 @@
+Kandidaatintutkielma Syksy 2020 Ryhmä Kutvonen/Vihavainen
+=========================================================
+
+Arvosana ja lausunto tutkielmasta.
+
+Ohjaaja ja valvoja: Lea Kutvonen (FT)
+Tarkastuslukija: Juha Vihavainen (FL)
+
+---------------------------------------------------------
+
+Starck, Tuomas (013464031)
+
+Haskell ja monadinen imperatiivisuus
+
+Arvostelijat: Juha Vihavainen, Lea Kutvonen (FT)
+
+Arvosana: 4/5
+
+kieli: suomi
+Hyväksymispäivä: 10.12.2020
+Kypsyysnäytteen hyväksymispäivämäärä: 10.12.2020
+
+Arviolausunto:
+
+Tutkielma on analyysi funktionaalisen Haskell-kielen siirrännän (IO:n) toteutuksesta monadien
+avulla. Sisältöä, esimerkkejä ja lähteitä on runsaasti, ja tekijä hallitsee aihepiiriä. Esi-
+tyksen kokonaisjäsentely on onnistunut, ja etenee loogisesti. Sisältö on täysin keskittynyt
+Haskell-kieleen, eikä (funktionaalisten) ohjelmointikielten taustaa ja ongelmakenttää käsitellä
+yleisemmin. Aihe on teoreettinen ja käsitteellinen eikä runsaista esimerkeistä huolimatta vält-
+tämättä täysin aukea aihepiiriä tuntemattomalle. Tutkelmassa on kuitenkin kiitettävästi omaa
+analyysiä ja pohdiskeluja; argumentointi on perusteellista ja vakuuttavaa. Lähdeviitteiden
+käyttö on asianmukaista. Tekstissä esiintyy turhan paljon kieli- ja painovirheitä sekä joita-
+kin ilmaisullisia kömpelyyksiä.
